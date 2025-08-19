@@ -9,6 +9,15 @@ export interface Template {
 	triggers?: string[];
 	vault?: string;
 	context?: string;
+	autoProperties?: AutoPropertiesConfig;
+}
+
+export interface AutoPropertiesConfig {
+	enabled: boolean;
+	mode: 'individual' | 'grouped';
+	groupKey: string;
+	excludePatterns: string[];
+	excludeContent: boolean;
 }
 
 export interface Property {

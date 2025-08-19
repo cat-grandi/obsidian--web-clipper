@@ -1,4 +1,4 @@
-import { Template, Property } from '../types/types';
+import { Template, Property, AutoPropertiesConfig } from '../types/types';
 import { deleteTemplate, templates, editingTemplateIndex, saveTemplateSettings, setEditingTemplateIndex, loadTemplates } from './template-manager';
 import { initializeIcons, getPropertyTypeIcon } from '../icons/icons';
 import { escapeValue, unescapeValue } from '../utils/string-utils';
@@ -191,6 +191,9 @@ export function showTemplateEditor(template: Template | null): void {
 
 	const promptContextTextarea = document.getElementById('prompt-context') as HTMLTextAreaElement;
 	if (promptContextTextarea) promptContextTextarea.value = editingTemplate.context || '';
+
+	// Load auto-properties configuration
+	loadAutoPropertiesConfig(editingTemplate);
 
 	updateBehaviorFields();
 
@@ -522,6 +525,9 @@ export function updateTemplateFromForm(): void {
 		};
 	}).filter(prop => prop.name.trim() !== ''); // Filter out properties with empty names
 
+	// Save auto-properties configuration
+	saveAutoPropertiesConfig(template);
+
 	const triggersTextarea = document.getElementById('url-patterns') as HTMLTextAreaElement;
 	if (triggersTextarea) template.triggers = triggersTextarea.value.split('\n').filter(Boolean);
 
@@ -543,6 +549,10 @@ function clearTemplateEditor(): void {
 	if (pathInput) pathInput.value = 'Clippings';
 	const triggersTextarea = document.getElementById('url-patterns') as HTMLTextAreaElement;
 	if (triggersTextarea) triggersTextarea.value = '';
+	
+	// Reset auto-properties configuration
+	clearAutoPropertiesConfig();
+	
 	const templateEditor = document.getElementById('template-editor');
 	if (templateEditor) templateEditor.style.display = 'none';
 }
@@ -605,4 +615,115 @@ function updatePropertyNameSuggestions(): void {
 
 export function refreshPropertyNameSuggestions(): void {
 	updatePropertyNameSuggestions();
+}
+
+function loadAutoPropertiesConfig(template: Template): void {
+	const autoPropertiesEnabled = document.getElementById('auto-properties-enabled') as HTMLInputElement;
+	const autoPropertiesMode = document.getElementById('auto-properties-mode') as HTMLSelectElement;
+	const autoPropertiesGroupKey = document.getElementById('auto-properties-group-key') as HTMLInputElement;
+	const autoPropertiesExcludePatterns = document.getElementById('auto-properties-exclude-patterns') as HTMLTextAreaElement;
+	const autoPropertiesExcludeContent = document.getElementById('auto-properties-exclude-content') as HTMLInputElement;
+	const autoPropertiesConfig = document.getElementById('auto-properties-config') as HTMLElement;
+	const autoPropertiesGroupKeyContainer = document.getElementById('auto-properties-group-key-container') as HTMLElement;
+
+	// Set default values if autoProperties doesn't exist
+	const config = template.autoProperties || {
+		enabled: false,
+		mode: 'individual',
+		groupKey: 'metadata',
+		excludePatterns: [],
+		excludeContent: true
+	};
+
+	if (autoPropertiesEnabled) {
+		autoPropertiesEnabled.checked = config.enabled;
+		// Show/hide config section based on enabled state
+		if (autoPropertiesConfig) {
+			autoPropertiesConfig.style.display = config.enabled ? 'block' : 'none';
+		}
+	}
+
+	if (autoPropertiesMode) {
+		autoPropertiesMode.value = config.mode;
+		// Show/hide group key input based on mode
+		if (autoPropertiesGroupKeyContainer) {
+			autoPropertiesGroupKeyContainer.style.display = config.mode === 'grouped' ? 'block' : 'none';
+		}
+	}
+
+	if (autoPropertiesGroupKey) {
+		autoPropertiesGroupKey.value = config.groupKey;
+	}
+
+	if (autoPropertiesExcludePatterns) {
+		autoPropertiesExcludePatterns.value = config.excludePatterns.join('\n');
+	}
+
+	if (autoPropertiesExcludeContent) {
+		autoPropertiesExcludeContent.checked = config.excludeContent;
+	}
+
+	// Add event listeners
+	if (autoPropertiesEnabled) {
+		autoPropertiesEnabled.addEventListener('change', function() {
+			if (autoPropertiesConfig) {
+				autoPropertiesConfig.style.display = this.checked ? 'block' : 'none';
+			}
+			updateTemplateFromForm();
+		});
+	}
+
+	if (autoPropertiesMode) {
+		autoPropertiesMode.addEventListener('change', function() {
+			if (autoPropertiesGroupKeyContainer) {
+				autoPropertiesGroupKeyContainer.style.display = this.value === 'grouped' ? 'block' : 'none';
+			}
+			updateTemplateFromForm();
+		});
+	}
+
+	if (autoPropertiesGroupKey) {
+		autoPropertiesGroupKey.addEventListener('input', updateTemplateFromForm);
+	}
+
+	if (autoPropertiesExcludePatterns) {
+		autoPropertiesExcludePatterns.addEventListener('input', updateTemplateFromForm);
+	}
+
+	if (autoPropertiesExcludeContent) {
+		autoPropertiesExcludeContent.addEventListener('change', updateTemplateFromForm);
+	}
+}
+
+function saveAutoPropertiesConfig(template: Template): void {
+	const autoPropertiesEnabled = document.getElementById('auto-properties-enabled') as HTMLInputElement;
+	const autoPropertiesMode = document.getElementById('auto-properties-mode') as HTMLSelectElement;
+	const autoPropertiesGroupKey = document.getElementById('auto-properties-group-key') as HTMLInputElement;
+	const autoPropertiesExcludePatterns = document.getElementById('auto-properties-exclude-patterns') as HTMLTextAreaElement;
+	const autoPropertiesExcludeContent = document.getElementById('auto-properties-exclude-content') as HTMLInputElement;
+
+	template.autoProperties = {
+		enabled: autoPropertiesEnabled ? autoPropertiesEnabled.checked : false,
+		mode: autoPropertiesMode ? autoPropertiesMode.value as 'individual' | 'grouped' : 'individual',
+		groupKey: autoPropertiesGroupKey ? autoPropertiesGroupKey.value || 'metadata' : 'metadata',
+		excludePatterns: autoPropertiesExcludePatterns ? 
+			autoPropertiesExcludePatterns.value.split('\n').filter(pattern => pattern.trim() !== '') : [],
+		excludeContent: autoPropertiesExcludeContent ? autoPropertiesExcludeContent.checked : true
+	};
+}
+
+function clearAutoPropertiesConfig(): void {
+	const autoPropertiesEnabled = document.getElementById('auto-properties-enabled') as HTMLInputElement;
+	const autoPropertiesMode = document.getElementById('auto-properties-mode') as HTMLSelectElement;
+	const autoPropertiesGroupKey = document.getElementById('auto-properties-group-key') as HTMLInputElement;
+	const autoPropertiesExcludePatterns = document.getElementById('auto-properties-exclude-patterns') as HTMLTextAreaElement;
+	const autoPropertiesExcludeContent = document.getElementById('auto-properties-exclude-content') as HTMLInputElement;
+	const autoPropertiesConfig = document.getElementById('auto-properties-config') as HTMLElement;
+
+	if (autoPropertiesEnabled) autoPropertiesEnabled.checked = false;
+	if (autoPropertiesMode) autoPropertiesMode.value = 'individual';
+	if (autoPropertiesGroupKey) autoPropertiesGroupKey.value = 'metadata';
+	if (autoPropertiesExcludePatterns) autoPropertiesExcludePatterns.value = '';
+	if (autoPropertiesExcludeContent) autoPropertiesExcludeContent.checked = true;
+	if (autoPropertiesConfig) autoPropertiesConfig.style.display = 'none';
 }

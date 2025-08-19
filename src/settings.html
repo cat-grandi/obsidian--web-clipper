@@ -534,6 +534,42 @@
 										<a id="add-property-btn" data-i18n="addProperty">+ Add property</a>
 									</div>
 								</div>
+								<div id="auto-properties-container">
+									<label data-i18n="autoProperties">Auto-add metadata as properties</label>
+									<div class="setting-item-description" data-i18n="autoPropertiesDescription">Automatically add all extracted page variables as properties to the note.</div>
+									<div class="setting-item">
+										<div class="checkbox-container">
+											<input type="checkbox" id="auto-properties-enabled" />
+											<label for="auto-properties-enabled" data-i18n="enableAutoProperties">Enable auto-properties</label>
+										</div>
+									</div>
+									<div id="auto-properties-config" style="display: none;">
+										<div class="setting-item">
+											<label for="auto-properties-mode" data-i18n="autoPropertiesMode">Mode</label>
+											<div class="setting-item-description" data-i18n="autoPropertiesModeDescription">Choose how to add the metadata properties.</div>
+											<select id="auto-properties-mode">
+												<option value="individual" data-i18n="individualProperties">Individual properties</option>
+												<option value="grouped" data-i18n="groupedProperties">Grouped under metadata key</option>
+											</select>
+										</div>
+										<div class="setting-item" id="auto-properties-group-key-container" style="display: none;">
+											<label for="auto-properties-group-key" data-i18n="autoPropertiesGroupKey">Group key name</label>
+											<div class="setting-item-description" data-i18n="autoPropertiesGroupKeyDescription">The property name to group all metadata under.</div>
+											<input type="text" id="auto-properties-group-key" placeholder="metadata" />
+										</div>
+										<div class="setting-item">
+											<label for="auto-properties-exclude-patterns" data-i18n="autoPropertiesExcludePatterns">Exclude patterns</label>
+											<div class="setting-item-description" data-i18n="autoPropertiesExcludePatternsDescription">Variable names or regex patterns to exclude (one per line). Content is excluded by default.</div>
+											<textarea id="auto-properties-exclude-patterns" rows="3" placeholder="^meta:property:og:&#10;highlights&#10;fullHtml" spellcheck="false"></textarea>
+										</div>
+										<div class="setting-item">
+											<div class="checkbox-container">
+												<input type="checkbox" id="auto-properties-exclude-content" checked />
+												<label for="auto-properties-exclude-content" data-i18n="excludeContentVariable">Exclude content variable</label>
+											</div>
+										</div>
+									</div>
+								</div>
 								<div class="setting-item">
 									<label for="note-content-format" data-i18n="noteContent">Note content</label>
 									<div class="setting-item-description" data-i18n="noteContentDescription">Customize the content of the note. Use variables to pre-populate data from the page.</div>

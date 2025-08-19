@@ -766,6 +766,42 @@
 	"templatePropertiesDescription": {
 		"message": "Properties to add to the top of the clipped note. Use variables to pre-populate data from the page."
 	},
+	"autoProperties": {
+		"message": "Auto-add metadata as properties"
+	},
+	"autoPropertiesDescription": {
+		"message": "Automatically add all extracted page variables as properties to the note."
+	},
+	"enableAutoProperties": {
+		"message": "Enable auto-properties"
+	},
+	"autoPropertiesMode": {
+		"message": "Mode"
+	},
+	"autoPropertiesModeDescription": {
+		"message": "Choose how to add the metadata properties."
+	},
+	"individualProperties": {
+		"message": "Individual properties"
+	},
+	"groupedProperties": {
+		"message": "Grouped under metadata key"
+	},
+	"autoPropertiesGroupKey": {
+		"message": "Group key name"
+	},
+	"autoPropertiesGroupKeyDescription": {
+		"message": "The property name to group all metadata under."
+	},
+	"autoPropertiesExcludePatterns": {
+		"message": "Exclude patterns"
+	},
+	"autoPropertiesExcludePatternsDescription": {
+		"message": "Variable names or regex patterns to exclude (one per line). Content is excluded by default."
+	},
+	"excludeContentVariable": {
+		"message": "Exclude content variable"
+	},
 	"templateTriggers": {
 		"message": "Template triggers"
 	},

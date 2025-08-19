@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { Template, Property, PromptVariable } from '../types/types';
+import { Template, Property, PromptVariable, AutoPropertiesConfig } from '../types/types';
 import { incrementStat, addHistoryEntry, getClipHistory } from '../utils/storage-utils';
 import { generateFrontmatter, saveToObsidian } from '../utils/obsidian-note-creator';
 import { extractPageContent, initializePageContent } from '../utils/content-extractor';
@@ -812,6 +812,11 @@ async function initializeTemplateFields(currentTabId: number, template: Template
 		newTemplateProperties.appendChild(propertyDiv);
 	}
 
+	// Generate auto-properties if enabled
+	if (template.autoProperties?.enabled) {
+		await generateAutoProperties(template, variables, newTemplateProperties, currentTabId);
+	}
+
 	// Replace the existing element with the new one
 	if (existingTemplateProperties && existingTemplateProperties.parentNode) {
 		existingTemplateProperties.parentNode.replaceChild(newTemplateProperties, existingTemplateProperties);
@@ -1317,3 +1322,151 @@ async function copyContent() {
 
 // Update the resize event listener to use the debounced version
 window.addEventListener('resize', debouncedSetPopupDimensions);
+
+async function generateAutoProperties(template: Template, variables: { [key: string]: string }, container: HTMLElement, currentTabId: number): Promise<void> {
+	if (!template.autoProperties?.enabled) {
+		return;
+	}
+
+	const config = template.autoProperties;
+	const existingPropertyNames = new Set(template.properties.map(p => p.name));
+	
+	// Filter variables based on configuration
+	const filteredVariables = filterVariablesForAutoProperties(variables, config, existingPropertyNames);
+	
+	if (config.mode === 'grouped') {
+		// Add as a single grouped property
+		await addGroupedAutoProperty(config, filteredVariables, container, currentTabId);
+	} else {
+		// Add as individual properties
+		await addIndividualAutoProperties(filteredVariables, container, currentTabId);
+	}
+}
+
+function filterVariablesForAutoProperties(
+	variables: { [key: string]: string }, 
+	config: AutoPropertiesConfig,
+	existingPropertyNames: Set<string>
+): { [key: string]: string } {
+	const filtered: { [key: string]: string } = {};
+	
+	for (const [key, value] of Object.entries(variables)) {
+		// Remove the {{ }} wrapper for processing
+		const cleanKey = key.replace(/^\{\{|\}\}$/g, '');
+		
+		// Skip if property already exists in template
+		if (existingPropertyNames.has(cleanKey)) {
+			continue;
+		}
+		
+		// Skip content if excludeContent is true
+		if (config.excludeContent && (cleanKey === 'content' || cleanKey === 'contentHtml')) {
+			continue;
+		}
+		
+		// Skip if matches any exclude pattern
+		if (shouldExcludeVariable(cleanKey, config.excludePatterns)) {
+			continue;
+		}
+		
+		// Skip empty values
+		if (!value || value.trim() === '') {
+			continue;
+		}
+		
+		filtered[cleanKey] = value;
+	}
+	
+	return filtered;
+}
+
+function shouldExcludeVariable(variableName: string, excludePatterns: string[]): boolean {
+	for (const pattern of excludePatterns) {
+		if (!pattern.trim()) continue;
+		
+		try {
+			// Try to use as regex first
+			const regex = new RegExp(pattern);
+			if (regex.test(variableName)) {
+				return true;
+			}
+		} catch (e) {
+			// If regex fails, use as exact string match
+			if (variableName === pattern || variableName.includes(pattern)) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+async function addGroupedAutoProperty(
+	config: AutoPropertiesConfig, 
+	variables: { [key: string]: string }, 
+	container: HTMLElement, 
+	currentTabId: number
+): Promise<void> {
+	if (Object.keys(variables).length === 0) {
+		return;
+	}
+	
+	const propertyDiv = createElementWithClass('div', 'metadata-property');
+	const groupKey = config.groupKey || 'metadata';
+	const groupedValue = JSON.stringify(variables, null, 2);
+	
+	const propertyType = generalSettings.propertyTypes.find(p => p.name === groupKey)?.type || 'text';
+	
+	propertyDiv.innerHTML = `
+		<div class="metadata-property-key">
+			<span class="metadata-property-icon"><i data-lucide="${getPropertyTypeIcon(propertyType)}"></i></span>
+			<label for="${groupKey}">${groupKey}</label>
+		</div>
+		<div class="metadata-property-value">
+			<input id="${groupKey}" type="text" value="${escapeHtml(groupedValue)}" data-type="${propertyType}" data-auto-generated="true" />
+		</div>
+	`;
+	
+	container.appendChild(propertyDiv);
+}
+
+async function addIndividualAutoProperties(
+	variables: { [key: string]: string }, 
+	container: HTMLElement, 
+	currentTabId: number
+): Promise<void> {
+	// Sort variables by name for consistent ordering
+	const sortedVariables = Object.entries(variables).sort(([a], [b]) => a.localeCompare(b));
+	
+	for (const [key, value] of sortedVariables) {
+		const propertyDiv = createElementWithClass('div', 'metadata-property');
+		const propertyType = generalSettings.propertyTypes.find(p => p.name === key)?.type || 'text';
+		
+		// Format value based on property type
+		let formattedValue = value;
+		if (propertyType === 'number') {
+			const numericValue = value.replace(/[^\d.-]/g, '');
+			formattedValue = numericValue ? parseFloat(numericValue).toString() : value;
+		} else if (propertyType === 'checkbox') {
+			formattedValue = (value.toLowerCase() === 'true' || value === '1').toString();
+		} else if (propertyType === 'date') {
+			formattedValue = dayjs(value).isValid() ? dayjs(value).format('YYYY-MM-DD') : value;
+		} else if (propertyType === 'datetime') {
+			formattedValue = dayjs(value).isValid() ? dayjs(value).format('YYYY-MM-DDTHH:mm:ssZ') : value;
+		}
+		
+		propertyDiv.innerHTML = `
+			<div class="metadata-property-key">
+				<span class="metadata-property-icon"><i data-lucide="${getPropertyTypeIcon(propertyType)}"></i></span>
+				<label for="${key}">${key}</label>
+			</div>
+			<div class="metadata-property-value">
+				${propertyType === 'checkbox' 
+					? `<input id="${key}" type="checkbox" ${formattedValue === 'true' ? 'checked' : ''} data-type="${propertyType}" data-auto-generated="true" />`
+					: `<input id="${key}" type="text" value="${escapeHtml(formattedValue)}" data-type="${propertyType}" data-auto-generated="true" />`
+				}
+			</div>
+		`;
+		
+		container.appendChild(propertyDiv);
+	}
+}
