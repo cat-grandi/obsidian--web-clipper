@@ -38,6 +38,23 @@ The main content variable is `{{content}}`, which contains the article content, 
 | `{{url}}`           | Current URL                                                                            |
 | `{{words}}`         | Word count                                                                             |
 
+### Including all variables
+
+You can dynamically include all available page variables in your template content using the special `{{allVariables}}` or `{{*}}` directive. This will output all variables in YAML property format.
+
+For example, if you use `{{allVariables}}` in your note content template, it will be replaced with something like:
+
+```yaml
+title: "Page Title"
+author: "Author Name"
+description: "Page description"
+meta:name:keywords: "keyword1, keyword2"
+meta:property:og:title: "OG Title"
+schema:@Article:headline: "Article Headline"
+```
+
+This is useful when you want to capture all available page metadata without manually adding each variable.
+
 ## Prompt variables
 
 Prompt variables leverage language models to extract and modify data using natural language. Prompt variables require [[Interpret web pages|Interpreter]] to be enabled and configured.

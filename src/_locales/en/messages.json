@@ -772,6 +772,12 @@
 	"templateTriggersDescription": {
 		"message": "Define rules to automatically select this template if it matches a URL pattern or contains schema.org data. One rule per line."
 	},
+	"includeAllVariables": {
+		"message": "Include all variables as properties"
+	},
+	"includeAllVariablesDescription": {
+		"message": "Automatically add all available page variables as properties when clipping. This includes meta tags, schema.org data, and other extracted page information."
+	},
 	"templatesHeading": {
 		"message": "Templates"
 	},

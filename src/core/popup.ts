@@ -962,6 +962,7 @@ async function getReplacedTemplate(template: Template, variables: { [key: string
 		replacedTemplate.context = await compileTemplate(tabId, template.context, variables, currentUrl);
 	}
 
+	// Process existing template properties
 	for (const prop of template.properties) {
 		const replacedProp: Property = {
 			id: prop.id,
@@ -969,6 +970,33 @@ async function getReplacedTemplate(template: Template, variables: { [key: string
 			value: await compileTemplate(tabId, prop.value, variables, currentUrl)
 		};
 		replacedTemplate.properties.push(replacedProp);
+	}
+
+	// If includeAllVariables is enabled, add all available variables as properties
+	if (template.includeAllVariables) {
+		const existingPropertyNames = new Set(template.properties.map(prop => prop.name));
+		
+		for (const [variableName, variableValue] of Object.entries(variables)) {
+			// Extract property name from variable (remove {{ and }})
+			const propertyName = variableName.replace(/^\{\{|\}\}$/g, '');
+			
+			// Skip if property already exists or if it's a special variable we want to exclude
+			if (existingPropertyNames.has(propertyName) || 
+				propertyName === 'contentHtml' || 
+				propertyName === 'fullHtml' ||
+				propertyName === 'content') {
+				continue;
+			}
+			
+			// Add the variable as a property
+			const autoProperty: Property = {
+				id: `auto-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+				name: propertyName,
+				value: variableValue
+			};
+			
+			replacedTemplate.properties.push(autoProperty);
+		}
 	}
 
 	return replacedTemplate;

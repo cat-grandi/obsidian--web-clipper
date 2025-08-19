@@ -62,7 +62,10 @@ export async function processVariables(tabId: number, text: string, variables: {
 		
 		let replacement: string;
 
-		if (trimmedMatch.startsWith('selector:') || trimmedMatch.startsWith('selectorHtml:')) {
+		if (trimmedMatch === 'allVariables' || trimmedMatch === '*') {
+			// Special directive to include all variables as properties
+			replacement = await processAllVariables(variables);
+		} else if (trimmedMatch.startsWith('selector:') || trimmedMatch.startsWith('selectorHtml:')) {
 			replacement = await processSelector(tabId, fullMatch, currentUrl);
 		} else if (trimmedMatch.startsWith('schema:')) {
 			replacement = await processSchema(fullMatch, variables, currentUrl);
@@ -77,4 +80,37 @@ export async function processVariables(tabId: number, text: string, variables: {
 	}
 
 	return result;
+}
+
+// Process all variables directive
+async function processAllVariables(variables: { [key: string]: any }): Promise<string> {
+	const properties: string[] = [];
+	
+	for (const [variableName, variableValue] of Object.entries(variables)) {
+		// Extract property name from variable (remove {{ and }})
+		const propertyName = variableName.replace(/^\{\{|\}\}$/g, '');
+		
+		// Skip special variables we don't want to include
+		if (propertyName === 'contentHtml' || 
+			propertyName === 'fullHtml' ||
+			propertyName === 'content' ||
+			propertyName === 'allVariables' ||
+			propertyName === '*') {
+			continue;
+		}
+		
+		// Format as YAML property
+		const escapedValue = typeof variableValue === 'string' 
+			? variableValue.replace(/\\/g, '\\\\').replace(/"/g, '\\"') 
+			: String(variableValue);
+		
+		// Handle multi-line values
+		if (escapedValue.includes('\n')) {
+			properties.push(`${propertyName}: |\n  ${escapedValue.split('\n').join('\n  ')}`);
+		} else {
+			properties.push(`${propertyName}: "${escapedValue}"`);
+		}
+	}
+	
+	return properties.join('\n');
 }

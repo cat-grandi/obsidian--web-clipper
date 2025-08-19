@@ -9,6 +9,7 @@ export interface Template {
 	triggers?: string[];
 	vault?: string;
 	context?: string;
+	includeAllVariables?: boolean;
 }
 
 export interface Property {

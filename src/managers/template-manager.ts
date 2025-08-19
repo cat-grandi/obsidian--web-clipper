@@ -119,6 +119,7 @@ export function createDefaultTemplate(): Template {
 		path: 'Clippings',
 		noteContentFormat: '{{content}}',
 		context: "",
+		includeAllVariables: false,
 		properties: [
 			{ id: Date.now().toString() + Math.random().toString(36).slice(2, 11), name: 'title', value: '{{title}}' },
 			{ id: Date.now().toString() + Math.random().toString(36).slice(2, 11), name: 'source', value: '{{url}}' },

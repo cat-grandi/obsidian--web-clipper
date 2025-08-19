@@ -192,6 +192,11 @@ export function showTemplateEditor(template: Template | null): void {
 	const promptContextTextarea = document.getElementById('prompt-context') as HTMLTextAreaElement;
 	if (promptContextTextarea) promptContextTextarea.value = editingTemplate.context || '';
 
+	const includeAllVariablesCheckbox = document.getElementById('include-all-variables') as HTMLInputElement;
+	if (includeAllVariablesCheckbox) {
+		includeAllVariablesCheckbox.checked = editingTemplate.includeAllVariables || false;
+	}
+
 	updateBehaviorFields();
 
 	if (behaviorSelect) {
@@ -226,6 +231,10 @@ export function showTemplateEditor(template: Template | null): void {
 				updateTemplateList();
 			}
 		});
+	}
+
+	if (includeAllVariablesCheckbox) {
+		includeAllVariablesCheckbox.addEventListener('change', updateTemplateFromForm);
 	}
 
 	const vaultSelect = document.getElementById('template-vault') as HTMLSelectElement;
@@ -527,6 +536,9 @@ export function updateTemplateFromForm(): void {
 
 	const vaultSelect = document.getElementById('template-vault') as HTMLSelectElement;
 	if (vaultSelect) template.vault = vaultSelect.value || undefined;
+
+	const includeAllVariablesCheckbox = document.getElementById('include-all-variables') as HTMLInputElement;
+	if (includeAllVariablesCheckbox) template.includeAllVariables = includeAllVariablesCheckbox.checked;
 
 	hasUnsavedChanges = true;
 }

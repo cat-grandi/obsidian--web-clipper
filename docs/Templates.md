@@ -60,6 +60,18 @@ You can trigger templates based on [schema.org](https://schema.org/) data presen
 
 Schema.org values can also be used to [[Variables#Schema.org variables|pre-populate data in templates]].
 
+### Include all variables as properties
+
+You can enable a template setting called **"Include all variables as properties"** to automatically add all available page variables as properties when clipping. This includes:
+
+- All [[Variables#Meta variables|meta tag variables]] (e.g., description, keywords, Open Graph data)
+- All [[Variables#Schema.org variables|schema.org variables]] extracted from structured data
+- All [[Variables#Preset variables|preset variables]] like title, author, published date, etc.
+
+When this setting is enabled, the template will automatically include all extracted variables as properties in the frontmatter, without having to manually add each one. This is useful when you want to capture comprehensive metadata from pages.
+
+Variables that are already defined as properties in your template won't be duplicated. Large content variables like `{{content}}`, `{{contentHtml}}`, and `{{fullHtml}}` are automatically excluded to keep the frontmatter manageable.
+
 ### Interpreter context
 
 When [[Interpret web pages|Interpreter]] is enabled, you can use [[Variables#Prompt variables|prompt variables]] to extract page content with natural language. For each template you can define the [[Interpret web pages#Context|context]] that Interpreter has access too. 
