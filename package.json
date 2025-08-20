@@ -41,7 +41,6 @@
 	"dependencies": {
 		"@types/safari-extension": "^0.0.33",
 		"dayjs": "^1.11.13",
-		"defuddle": "file:../defuddle",
 		"dompurify": "^3.0.9",
 		"highlight.js": "^11.11.1",
 		"lucide": "^0.359.0",
