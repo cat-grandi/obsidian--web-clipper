@@ -168,7 +168,7 @@ async function expandAutoMetadataProperties(properties: Property[], variables: {
 }
 
 function parseAutoMetadataConfig(configString: string): { groupedOutput: boolean; groupKey: string; excludePatterns: string[]; excludeVariables: string[]; } {
-	// Default configuration
+	// Default configuration - always exclude content-heavy variables
 	const defaultConfig = {
 		groupedOutput: false,
 		groupKey: 'metadata',
@@ -186,8 +186,8 @@ function parseAutoMetadataConfig(configString: string): { groupedOutput: boolean
 		return {
 			groupedOutput: parsed.groupedOutput ?? defaultConfig.groupedOutput,
 			groupKey: parsed.groupKey ?? defaultConfig.groupKey,
-			excludePatterns: parsed.excludePatterns ?? defaultConfig.excludePatterns,
-			excludeVariables: parsed.excludeVariables ?? defaultConfig.excludeVariables
+			excludePatterns: [...defaultConfig.excludePatterns, ...(parsed.excludePatterns ?? [])],
+			excludeVariables: [...defaultConfig.excludeVariables, ...(parsed.excludeVariables ?? [])]
 		};
 	} catch {
 		// Fallback to simple string parsing for exclusion list

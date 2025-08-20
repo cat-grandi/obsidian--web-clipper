@@ -612,10 +612,10 @@ function updatePropertyNameSuggestions(): void {
 function updateValueInputForPropertyType(propertyType: string, valueInput: HTMLInputElement): void {
 	if (propertyType === 'auto-metadata') {
 		valueInput.placeholder = 'Configuration (JSON or exclude list)';
-		valueInput.title = 'Enter JSON config like {"groupedOutput": true, "excludeVariables": ["content"]} or simple exclude list: content,fullHtml';
+		valueInput.title = 'Enter JSON config like {"groupedOutput": true, "excludeVariables": ["author"]} or simple exclude list: author,date';
 		if (!valueInput.value || valueInput.value.trim() === '') {
-			// Set default configuration
-			valueInput.value = '{"excludeVariables": ["content", "contentHtml", "fullHtml"]}';
+			// Set default configuration - empty means use defaults
+			valueInput.value = '';
 		}
 	} else {
 		valueInput.placeholder = getMessage('propertyValue');
