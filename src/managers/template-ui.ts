@@ -198,14 +198,116 @@ export function showTemplateEditor(template: Template | null): void {
 		behaviorSelect.addEventListener('change', updateBehaviorFields);
 	}
 
-	refreshPropertyNameSuggestions();
+        refreshPropertyNameSuggestions();
 
-	if (editingTemplate && Array.isArray(editingTemplate.properties)) {
-		editingTemplate.properties.forEach(property => addPropertyToEditor(property.name, property.value, property.id));
-	}
+        if (editingTemplate && Array.isArray(editingTemplate.properties)) {
+                editingTemplate.properties.forEach(property => addPropertyToEditor(property.name, property.value, property.id));
+        }
 
-	const triggersTextarea = document.getElementById('url-patterns') as HTMLTextAreaElement;
-	if (triggersTextarea) triggersTextarea.value = editingTemplate && editingTemplate.triggers ? editingTemplate.triggers.join('\n') : '';
+        const appendAllVariablesToggle = document.getElementById('template-append-all-variables-toggle') as HTMLInputElement;
+        if (appendAllVariablesToggle) {
+                appendAllVariablesToggle.checked = editingTemplate.appendAllVariables ?? generalSettings.appendAllVariables ?? false;
+                appendAllVariablesToggle.addEventListener('change', () => {
+                        editingTemplate.appendAllVariables = appendAllVariablesToggle.checked;
+                        hasUnsavedChanges = true;
+                });
+        }
+
+        const includeInput = document.getElementById('template-variable-include-input') as HTMLInputElement;
+        const includeList = document.getElementById('template-variable-include-list') as HTMLUListElement;
+        function updateIncludeList(): void {
+                if (!includeList) return;
+                includeList.innerHTML = '';
+                (editingTemplate.variableIncludeList || []).forEach((variable, index) => {
+                        const li = document.createElement('li');
+                        const span = document.createElement('span');
+                        span.textContent = variable;
+                        li.appendChild(span);
+
+                        const removeBtn = createElementWithClass('button', 'remove-variable-btn clickable-icon');
+                        removeBtn.setAttribute('type', 'button');
+                        removeBtn.appendChild(createElementWithHTML('i', '', { 'data-lucide': 'trash-2' }));
+                        removeBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                editingTemplate.variableIncludeList?.splice(index, 1);
+                                updateIncludeList();
+                                hasUnsavedChanges = true;
+                        });
+                        li.appendChild(removeBtn);
+                        includeList.appendChild(li);
+                });
+                initializeIcons(includeList);
+        }
+        if (includeInput) {
+                includeInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const value = includeInput.value.trim();
+                                if (value) {
+                                        if (!editingTemplate.variableIncludeList) editingTemplate.variableIncludeList = [];
+                                        editingTemplate.variableIncludeList.push(value);
+                                        includeInput.value = '';
+                                        updateIncludeList();
+                                        hasUnsavedChanges = true;
+                                }
+                        }
+                });
+        }
+        updateIncludeList();
+
+        const excludeInput = document.getElementById('template-variable-exclude-input') as HTMLInputElement;
+        const excludeList = document.getElementById('template-variable-exclude-list') as HTMLUListElement;
+        function updateExcludeList(): void {
+                if (!excludeList) return;
+                excludeList.innerHTML = '';
+                (editingTemplate.variableExcludeList || []).forEach((variable, index) => {
+                        const li = document.createElement('li');
+                        const span = document.createElement('span');
+                        span.textContent = variable;
+                        li.appendChild(span);
+
+                        const removeBtn = createElementWithClass('button', 'remove-variable-btn clickable-icon');
+                        removeBtn.setAttribute('type', 'button');
+                        removeBtn.appendChild(createElementWithHTML('i', '', { 'data-lucide': 'trash-2' }));
+                        removeBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                editingTemplate.variableExcludeList?.splice(index, 1);
+                                updateExcludeList();
+                                hasUnsavedChanges = true;
+                        });
+                        li.appendChild(removeBtn);
+                        excludeList.appendChild(li);
+                });
+                initializeIcons(excludeList);
+        }
+        if (excludeInput) {
+                excludeInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const value = excludeInput.value.trim();
+                                if (value) {
+                                        if (!editingTemplate.variableExcludeList) editingTemplate.variableExcludeList = [];
+                                        editingTemplate.variableExcludeList.push(value);
+                                        excludeInput.value = '';
+                                        updateExcludeList();
+                                        hasUnsavedChanges = true;
+                                }
+                        }
+                });
+        }
+        updateExcludeList();
+
+        const regexInput = document.getElementById('template-variable-match-regex-input') as HTMLInputElement;
+        if (regexInput) {
+                regexInput.value = editingTemplate.variableMatchRegex || '';
+                regexInput.addEventListener('input', () => {
+                        editingTemplate.variableMatchRegex = regexInput.value;
+                        hasUnsavedChanges = true;
+                });
+        }
+
+        const triggersTextarea = document.getElementById('url-patterns') as HTMLTextAreaElement;
+        if (triggersTextarea) triggersTextarea.value = editingTemplate && editingTemplate.triggers ? editingTemplate.triggers.join('\n') : '';
 
 	showSettingsSection('templates', editingTemplate.id);
 

@@ -194,9 +194,10 @@ export function initializeGeneralSettings(): void {
 		initializeResetDefaultTemplateButton();
 		initializeExportImportAllSettingsButtons();
 		initializeHighlighterSettings();
-		initializeExportHighlightsButton();
-		initializeSaveBehaviorDropdown();
-		await initializeUsageChart();
+                initializeExportHighlightsButton();
+                initializeSaveBehaviorDropdown();
+                initializeVariableSettings();
+                await initializeUsageChart();
 
 		// Initialize feedback modal close button
 		const feedbackModal = document.getElementById('feedback-modal');
@@ -339,6 +340,113 @@ function initializeSaveBehaviorDropdown(): void {
         const newValue = dropdown.value as 'addToObsidian' | 'copyToClipboard' | 'saveFile';
         saveSettings({ saveBehavior: newValue });
     });
+}
+
+function initializeVariableSettings(): void {
+        initializeSettingToggle('append-all-variables-toggle', generalSettings.appendAllVariables ?? false, (checked) => {
+                saveSettings({ appendAllVariables: checked });
+        });
+
+        const includeInput = document.getElementById('variable-include-input') as HTMLInputElement;
+        const includeList = document.getElementById('variable-include-list') as HTMLUListElement;
+
+        function updateIncludeList(): void {
+                if (!includeList) return;
+                includeList.innerHTML = '';
+                (generalSettings.variableIncludeList || []).forEach((variable, index) => {
+                        const li = document.createElement('li');
+                        const span = document.createElement('span');
+                        span.textContent = variable;
+                        li.appendChild(span);
+
+                        const removeBtn = createElementWithClass('button', 'remove-variable-btn clickable-icon');
+                        removeBtn.setAttribute('type', 'button');
+                        removeBtn.appendChild(createElementWithHTML('i', '', { 'data-lucide': 'trash-2' }));
+                        removeBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                generalSettings.variableIncludeList?.splice(index, 1);
+                                saveSettings();
+                                updateIncludeList();
+                        });
+                        li.appendChild(removeBtn);
+
+                        includeList.appendChild(li);
+                });
+
+                initializeIcons(includeList);
+        }
+
+        if (includeInput) {
+                includeInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const value = includeInput.value.trim();
+                                if (value) {
+                                        if (!generalSettings.variableIncludeList) generalSettings.variableIncludeList = [];
+                                        generalSettings.variableIncludeList.push(value);
+                                        includeInput.value = '';
+                                        saveSettings();
+                                        updateIncludeList();
+                                }
+                        }
+                });
+        }
+        updateIncludeList();
+
+        const excludeInput = document.getElementById('variable-exclude-input') as HTMLInputElement;
+        const excludeList = document.getElementById('variable-exclude-list') as HTMLUListElement;
+
+        function updateExcludeList(): void {
+                if (!excludeList) return;
+                excludeList.innerHTML = '';
+                (generalSettings.variableExcludeList || []).forEach((variable, index) => {
+                        const li = document.createElement('li');
+                        const span = document.createElement('span');
+                        span.textContent = variable;
+                        li.appendChild(span);
+
+                        const removeBtn = createElementWithClass('button', 'remove-variable-btn clickable-icon');
+                        removeBtn.setAttribute('type', 'button');
+                        removeBtn.appendChild(createElementWithHTML('i', '', { 'data-lucide': 'trash-2' }));
+                        removeBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                generalSettings.variableExcludeList?.splice(index, 1);
+                                saveSettings();
+                                updateExcludeList();
+                        });
+                        li.appendChild(removeBtn);
+
+                        excludeList.appendChild(li);
+                });
+
+        initializeIcons(excludeList);
+        }
+
+        if (excludeInput) {
+                excludeInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const value = excludeInput.value.trim();
+                                if (value) {
+                                        if (!generalSettings.variableExcludeList) generalSettings.variableExcludeList = [];
+                                        generalSettings.variableExcludeList.push(value);
+                                        excludeInput.value = '';
+                                        saveSettings();
+                                        updateExcludeList();
+                                }
+                        }
+                });
+        }
+        updateExcludeList();
+
+        const regexInput = document.getElementById('variable-match-regex-input') as HTMLInputElement;
+        if (regexInput) {
+                regexInput.value = generalSettings.variableMatchRegex || '';
+                regexInput.addEventListener('input', () => {
+                        generalSettings.variableMatchRegex = regexInput.value;
+                        saveSettings();
+                });
+        }
 }
 
 export function resetDefaultTemplate(): void {
