@@ -4,9 +4,12 @@ import { Template, Property } from '../types/types';
 import { generalSettings, incrementStat } from './storage-utils';
 import { copyToClipboard } from './clipboard-utils';
 
-export async function generateFrontmatter(properties: Property[]): Promise<string> {
+export async function generateFrontmatter(properties: Property[], variables?: { [key: string]: string }): Promise<string> {
+	// Expand auto-metadata properties before processing
+	const expandedProperties = await expandAutoMetadataProperties(properties, variables || {});
+	
 	let frontmatter = '---\n';
-	for (const property of properties) {
+	for (const property of expandedProperties) {
 		// Wrap property name in quotes if it contains YAML-ambiguous characters
 		const needsQuotes = /[:\s\{\}\[\],&*#?|<>=!%@\\-]/.test(property.name) || /^[\d]/.test(property.name) || /^(true|false|null|yes|no|on|off)$/i.test(property.name.trim());
 		const propertyKey = needsQuotes ? (property.name.includes('"') ? `'${property.name.replace(/'/g, "''")}'` : `"${property.name}"`) : property.name;
@@ -142,5 +145,97 @@ export async function saveToObsidian(
 	} else {
 		// Try to copy to clipboard with fallback mechanisms
 		await tryClipboardWrite(fileContent, obsidianUrl);
+	}
+}
+
+async function expandAutoMetadataProperties(properties: Property[], variables: { [key: string]: string }): Promise<Property[]> {
+	const expandedProperties: Property[] = [];
+	
+	for (const property of properties) {
+		const propertyType = generalSettings.propertyTypes.find(p => p.name === property.name)?.type || property.type || 'text';
+		
+		if (propertyType === 'auto-metadata') {
+			// Parse the configuration from the property value
+			const config = parseAutoMetadataConfig(property.value);
+			const autoProperties = generateAutoMetadataProperties(variables, config);
+			expandedProperties.push(...autoProperties);
+		} else {
+			expandedProperties.push(property);
+		}
+	}
+	
+	return expandedProperties;
+}
+
+function parseAutoMetadataConfig(configString: string): { groupedOutput: boolean; groupKey: string; excludePatterns: string[]; excludeVariables: string[]; } {
+	// Default configuration
+	const defaultConfig = {
+		groupedOutput: false,
+		groupKey: 'metadata',
+		excludePatterns: ['^content', '^fullHtml', '^contentHtml'],
+		excludeVariables: ['content', 'contentHtml', 'fullHtml']
+	};
+	
+	if (!configString || configString.trim() === '') {
+		return defaultConfig;
+	}
+	
+	try {
+		// Try to parse as JSON configuration
+		const parsed = JSON.parse(configString);
+		return {
+			groupedOutput: parsed.groupedOutput ?? defaultConfig.groupedOutput,
+			groupKey: parsed.groupKey ?? defaultConfig.groupKey,
+			excludePatterns: parsed.excludePatterns ?? defaultConfig.excludePatterns,
+			excludeVariables: parsed.excludeVariables ?? defaultConfig.excludeVariables
+		};
+	} catch {
+		// Fallback to simple string parsing for exclusion list
+		const excludeList = configString.split(',').map(s => s.trim()).filter(s => s.length > 0);
+		return {
+			...defaultConfig,
+			excludeVariables: [...defaultConfig.excludeVariables, ...excludeList]
+		};
+	}
+}
+
+function generateAutoMetadataProperties(variables: { [key: string]: string }, config: { groupedOutput: boolean; groupKey: string; excludePatterns: string[]; excludeVariables: string[]; }): Property[] {
+	const filteredVariables: { [key: string]: string } = {};
+	
+	// Filter variables based on exclusion rules
+	for (const [key, value] of Object.entries(variables)) {
+		const cleanKey = key.replace(/^\{\{|\}\}$/g, ''); // Remove {{ and }}
+		
+		// Check if variable should be excluded
+		const shouldExclude = config.excludeVariables.includes(cleanKey) ||
+			config.excludePatterns.some(pattern => {
+				try {
+					return new RegExp(pattern).test(cleanKey);
+				} catch {
+					return cleanKey.includes(pattern);
+				}
+			});
+		
+		if (!shouldExclude && value && value.trim() !== '') {
+			filteredVariables[cleanKey] = value;
+		}
+	}
+	
+	if (config.groupedOutput) {
+		// Group all metadata under a single property
+		return [{
+			id: Date.now().toString() + Math.random().toString(36).slice(2, 11),
+			name: config.groupKey,
+			value: JSON.stringify(filteredVariables),
+			type: 'text'
+		}];
+	} else {
+		// Create individual properties for each variable
+		return Object.entries(filteredVariables).map(([key, value]) => ({
+			id: Date.now().toString() + Math.random().toString(36).slice(2, 11),
+			name: key,
+			value: value,
+			type: 'text'
+		}));
 	}
 }

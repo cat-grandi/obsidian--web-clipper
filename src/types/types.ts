@@ -18,6 +18,14 @@ export interface Property {
 	type?: string;
 }
 
+export interface AutoMetadataConfig {
+	enabled: boolean;
+	groupedOutput: boolean;
+	groupKey: string;
+	excludePatterns: string[];
+	excludeVariables: string[];
+}
+
 export interface ExtractedContent {
 	[key: string]: string;
 }

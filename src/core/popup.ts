@@ -55,7 +55,7 @@ const memoizedCompileTemplate = memoizeWithExpiration(
 // Memoize generateFrontmatter with a longer expiration
 const memoizedGenerateFrontmatter = memoizeWithExpiration(
 	async (properties: Property[]) => {
-		return generateFrontmatter(properties);
+		return generateFrontmatter(properties, currentVariables);
 	},
 	{ expirationMs: 50 }
 );
@@ -447,7 +447,7 @@ function setupEventListeners(tabId: number) {
 			}) as Property[];
 
 			const noteContentField = document.getElementById('note-content-field') as HTMLTextAreaElement;
-			const frontmatter = await generateFrontmatter(properties);
+			const frontmatter = await generateFrontmatter(properties, currentVariables);
 			const fileContent = frontmatter + noteContentField.value;
 			
 			await copyToClipboard(fileContent);
@@ -476,7 +476,7 @@ function setupEventListeners(tabId: number) {
 				
 				// Use Promise.all to prepare the data
 				Promise.all([
-					generateFrontmatter(properties),
+					generateFrontmatter(properties, currentVariables),
 					Promise.resolve(noteContentField.value)
 				]).then(([frontmatter, noteContent]) => {
 					const fileContent = frontmatter + noteContent;
@@ -1153,7 +1153,7 @@ async function handleSaveToDownloads() {
 		}) as Property[];
 
 		const noteContentField = document.getElementById('note-content-field') as HTMLTextAreaElement;
-		const frontmatter = await generateFrontmatter(properties);
+		const frontmatter = await generateFrontmatter(properties, currentVariables);
 		const fileContent = frontmatter + noteContentField.value;
 
 		await saveFile({
@@ -1246,7 +1246,7 @@ async function handleClipObsidian(): Promise<void> {
             };
         }) as Property[];
 
-        const frontmatter = await generateFrontmatter(properties);
+        const frontmatter = await generateFrontmatter(properties, currentVariables);
         const fileContent = frontmatter + noteContentField.value;
 
         // Save to Obsidian
@@ -1310,7 +1310,7 @@ async function copyContent() {
     }) as Property[];
 
     const noteContentField = document.getElementById('note-content-field') as HTMLTextAreaElement;
-    const frontmatter = await generateFrontmatter(properties);
+    const frontmatter = await generateFrontmatter(properties, currentVariables);
     const fileContent = frontmatter + noteContentField.value;
     await copyToClipboard(fileContent);
 }

@@ -89,7 +89,7 @@ function createPropertyTypeListItem(propertyType: PropertyType, usageCount: numb
 
 	const select = document.createElement('select') as HTMLSelectElement;
 	select.className = 'property-type';
-	['text', 'multitext', 'number', 'checkbox', 'date', 'datetime'].forEach(type => {
+	['text', 'multitext', 'number', 'checkbox', 'date', 'datetime', 'auto-metadata'].forEach(type => {
 		const option = document.createElement('option');
 		option.value = type;
 		option.textContent = type.charAt(0).toUpperCase() + type.slice(1);

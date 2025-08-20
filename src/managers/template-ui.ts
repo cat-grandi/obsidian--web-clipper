@@ -314,7 +314,7 @@ export function addPropertyToEditor(name: string = '', value: string = '', id: s
 	const select = document.createElement('select');
 	select.className = 'property-type';
 	select.id = `${propertyId}-type`;
-	['text', 'multitext', 'number', 'checkbox', 'date', 'datetime'].forEach(optionValue => {
+	['text', 'multitext', 'number', 'checkbox', 'date', 'datetime', 'auto-metadata'].forEach(optionValue => {
 		const option = document.createElement('option');
 		option.value = optionValue;
 		option.textContent = optionValue.charAt(0).toUpperCase() + optionValue.slice(1);
@@ -390,6 +390,9 @@ export function addPropertyToEditor(name: string = '', value: string = '', id: s
 		select.addEventListener('change', function() {
 			if (propertySelectedDiv) updateSelectedOption(this.value, propertySelectedDiv);
 			
+			// Update value input based on property type
+			updateValueInputForPropertyType(this.value, valueInput);
+			
 			// Get the current name of the property
 			const nameInput = propertyDiv.querySelector('.property-name') as HTMLInputElement;
 			const currentName = nameInput.value;
@@ -417,6 +420,9 @@ export function addPropertyToEditor(name: string = '', value: string = '', id: s
 	propertyDiv.addEventListener('dragend', handleDragEnd);
 
 	updateSelectedOption(propertyType, propertySelectedDiv);
+	
+	// Initialize value input based on property type
+	updateValueInputForPropertyType(propertyType, valueInput);
 
 	initializeIcons(propertyDiv);
 
@@ -600,6 +606,20 @@ function updatePropertyNameSuggestions(): void {
 			option.value = pt.name;
 			datalist.appendChild(option);
 		});
+	}
+}
+
+function updateValueInputForPropertyType(propertyType: string, valueInput: HTMLInputElement): void {
+	if (propertyType === 'auto-metadata') {
+		valueInput.placeholder = 'Configuration (JSON or exclude list)';
+		valueInput.title = 'Enter JSON config like {"groupedOutput": true, "excludeVariables": ["content"]} or simple exclude list: content,fullHtml';
+		if (!valueInput.value || valueInput.value.trim() === '') {
+			// Set default configuration
+			valueInput.value = '{"excludeVariables": ["content", "contentHtml", "fullHtml"]}';
+		}
+	} else {
+		valueInput.placeholder = getMessage('propertyValue');
+		valueInput.title = '';
 	}
 }
 

@@ -11,6 +11,7 @@ import {
 	Clock,
 	Copy,
 	CopyPlus,
+	Database,
 	Ellipsis, 
 	FileDown,
 	Files,
@@ -44,6 +45,7 @@ export const icons = {
 	Clock,
 	Copy,
 	CopyPlus,
+	Database,
 	Ellipsis,
 	FileDown,
 	Files,
@@ -81,7 +83,8 @@ export function getPropertyTypeIcon(type: string): string {
 		checkbox: 'square-check-big',
 		date: 'calendar',
 		datetime: 'clock',
-		tags: 'tags'
+		tags: 'tags',
+		'auto-metadata': 'database'
 	};
 	return iconMap[type] || 'align-left';
 }
