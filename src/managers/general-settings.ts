@@ -347,97 +347,63 @@ function initializeVariableSettings(): void {
                 saveSettings({ appendAllVariables: checked });
         });
 
-        const includeInput = document.getElementById('variable-include-input') as HTMLInputElement;
-        const includeList = document.getElementById('variable-include-list') as HTMLUListElement;
+        function setupVariableList(listType: 'include' | 'exclude', inputId: string, listId: string): void {
+                const input = document.getElementById(inputId) as HTMLInputElement;
+                const list = document.getElementById(listId) as HTMLUListElement;
+                const listKey: 'variableIncludeList' | 'variableExcludeList' =
+                        listType === 'include' ? 'variableIncludeList' : 'variableExcludeList';
 
-        function updateIncludeList(): void {
-                if (!includeList) return;
-                includeList.innerHTML = '';
-                (generalSettings.variableIncludeList || []).forEach((variable, index) => {
-                        const li = document.createElement('li');
-                        const span = document.createElement('span');
-                        span.textContent = variable;
-                        li.appendChild(span);
+                function updateList(): void {
+                        if (!list) return;
+                        list.innerHTML = '';
+                        (generalSettings[listKey] || []).forEach((variable) => {
+                                const li = document.createElement('li');
+                                const span = document.createElement('span');
+                                span.textContent = variable;
+                                li.appendChild(span);
 
-                        const removeBtn = createElementWithClass('button', 'remove-variable-btn clickable-icon');
-                        removeBtn.setAttribute('type', 'button');
-                        removeBtn.appendChild(createElementWithHTML('i', '', { 'data-lucide': 'trash-2' }));
-                        removeBtn.addEventListener('click', (e) => {
-                                e.stopPropagation();
-                                generalSettings.variableIncludeList?.splice(index, 1);
-                                saveSettings();
-                                updateIncludeList();
+                                const removeBtn = createElementWithClass('button', 'remove-variable-btn clickable-icon');
+                                removeBtn.setAttribute('type', 'button');
+                                removeBtn.appendChild(createElementWithHTML('i', '', { 'data-lucide': 'trash-2' }));
+                                removeBtn.addEventListener('click', (e) => {
+                                        e.stopPropagation();
+                                        const arr = generalSettings[listKey];
+                                        const idx = arr ? arr.indexOf(variable) : -1;
+                                        if (idx !== -1 && arr) {
+                                                arr.splice(idx, 1);
+                                                saveSettings();
+                                                updateList();
+                                        }
+                                });
+                                li.appendChild(removeBtn);
+
+                                list.appendChild(li);
                         });
-                        li.appendChild(removeBtn);
 
-                        includeList.appendChild(li);
-                });
+                        initializeIcons(list);
+                }
 
-                initializeIcons(includeList);
-        }
-
-        if (includeInput) {
-                includeInput.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') {
-                                e.preventDefault();
-                                const value = includeInput.value.trim();
-                                if (value) {
-                                        if (!generalSettings.variableIncludeList) generalSettings.variableIncludeList = [];
-                                        generalSettings.variableIncludeList.push(value);
-                                        includeInput.value = '';
-                                        saveSettings();
-                                        updateIncludeList();
+                if (input) {
+                        input.addEventListener('keypress', (e) => {
+                                if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        const value = input.value.trim();
+                                        if (value) {
+                                                if (!generalSettings[listKey]) generalSettings[listKey] = [];
+                                                generalSettings[listKey]!.push(value);
+                                                input.value = '';
+                                                saveSettings();
+                                                updateList();
+                                        }
                                 }
-                        }
-                });
-        }
-        updateIncludeList();
-
-        const excludeInput = document.getElementById('variable-exclude-input') as HTMLInputElement;
-        const excludeList = document.getElementById('variable-exclude-list') as HTMLUListElement;
-
-        function updateExcludeList(): void {
-                if (!excludeList) return;
-                excludeList.innerHTML = '';
-                (generalSettings.variableExcludeList || []).forEach((variable, index) => {
-                        const li = document.createElement('li');
-                        const span = document.createElement('span');
-                        span.textContent = variable;
-                        li.appendChild(span);
-
-                        const removeBtn = createElementWithClass('button', 'remove-variable-btn clickable-icon');
-                        removeBtn.setAttribute('type', 'button');
-                        removeBtn.appendChild(createElementWithHTML('i', '', { 'data-lucide': 'trash-2' }));
-                        removeBtn.addEventListener('click', (e) => {
-                                e.stopPropagation();
-                                generalSettings.variableExcludeList?.splice(index, 1);
-                                saveSettings();
-                                updateExcludeList();
                         });
-                        li.appendChild(removeBtn);
+                }
 
-                        excludeList.appendChild(li);
-                });
-
-        initializeIcons(excludeList);
+                updateList();
         }
 
-        if (excludeInput) {
-                excludeInput.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') {
-                                e.preventDefault();
-                                const value = excludeInput.value.trim();
-                                if (value) {
-                                        if (!generalSettings.variableExcludeList) generalSettings.variableExcludeList = [];
-                                        generalSettings.variableExcludeList.push(value);
-                                        excludeInput.value = '';
-                                        saveSettings();
-                                        updateExcludeList();
-                                }
-                        }
-                });
-        }
-        updateExcludeList();
+        setupVariableList('include', 'variable-include-input', 'variable-include-list');
+        setupVariableList('exclude', 'variable-exclude-input', 'variable-exclude-list');
 
         const regexInput = document.getElementById('variable-match-regex-input') as HTMLInputElement;
         if (regexInput) {
