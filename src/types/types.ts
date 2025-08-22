@@ -77,7 +77,10 @@ export interface Settings {
         appendAllVariables?: boolean;
         variableIncludeList?: string[];
         variableExcludeList?: string[];
-        variableMatchRegex?: string;
+        appendAllVariables: boolean;
+        variableIncludeList: string[];
+        variableExcludeList: string[];
+        variableMatchRegex: string;
         interpreterModel?: string;
         models: ModelConfig[];
         providers: Provider[];
