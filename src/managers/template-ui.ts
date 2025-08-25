@@ -269,26 +269,6 @@ export function showTemplateEditor(template: Template | null): void {
         setupVariableList('include', 'template-variable-include-input', 'template-variable-include-list');
         setupVariableList('exclude', 'template-variable-exclude-input', 'template-variable-exclude-list');
         // Use shared setupVariableList utility function
-        setupVariableList({
-            listType: 'include',
-            inputId: 'template-variable-include-input',
-            listId: 'template-variable-include-list',
-            editingObject: editingTemplate,
-            hasUnsavedChangesRef: { get: () => hasUnsavedChanges, set: v => { hasUnsavedChanges = v; } },
-            createElementWithClass,
-            createElementWithHTML,
-            initializeIcons
-        });
-        setupVariableList({
-            listType: 'exclude',
-            inputId: 'template-variable-exclude-input',
-            listId: 'template-variable-exclude-list',
-            editingObject: editingTemplate,
-            hasUnsavedChangesRef: { get: () => hasUnsavedChanges, set: v => { hasUnsavedChanges = v; } },
-            createElementWithClass,
-            createElementWithHTML,
-            initializeIcons
-        });
         const regexInput = document.getElementById('template-variable-match-regex-input') as HTMLInputElement;
         if (regexInput) {
                 regexInput.value = editingTemplate.variableMatchRegex || '';
