@@ -6,9 +6,13 @@ export interface Template {
 	path: string;
 	noteContentFormat: string;
 	properties: Property[];
-	triggers?: string[];
-	vault?: string;
-	context?: string;
+        triggers?: string[];
+        vault?: string;
+        context?: string;
+        appendAllVariables?: boolean;
+        variableIncludeList?: string[];
+        variableExcludeList?: string[];
+        variableMatchRegex?: string;
 }
 
 export interface Property {
@@ -69,10 +73,14 @@ export interface Settings {
 	openBehavior: 'popup' | 'embedded';
 	highlighterEnabled: boolean;
 	alwaysShowHighlights: boolean;
-	highlightBehavior: string;
-	interpreterModel?: string;
-	models: ModelConfig[];
-	providers: Provider[];
+        highlightBehavior: string;
+        appendAllVariables: boolean;
+        variableIncludeList: string[];
+        variableExcludeList: string[];
+        variableMatchRegex: string;
+        interpreterModel?: string;
+        models: ModelConfig[];
+        providers: Provider[];
 	interpreterEnabled: boolean;
 	interpreterAutoRun: boolean;
 	defaultPromptContext: string;

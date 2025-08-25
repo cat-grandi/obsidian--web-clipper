@@ -403,19 +403,60 @@
 										<button type="button" id="export-types-btn" data-i18n="export">Export</button>
 									</div>
 								</div>
-								<div class="setting-item mod-horizontal">
-									<div class="setting-item-info">
-										<label for="delete-unused-properties-btn" data-i18n="removeUnusedProperties">Remove unused properties</label>
+                                                                <div class="setting-item mod-horizontal">
+                                                                        <div class="setting-item-info">
+                                                                                <label for="delete-unused-properties-btn" data-i18n="removeUnusedProperties">Remove unused properties</label>
 										<div class="setting-item-description" data-i18n="removeUnusedPropertiesDescription">
 											Remove all properties that are not used in any template.
 										</div>
-									</div>
-									<div class="setting-item-control">
-										<button type="button" id="delete-unused-properties-btn" data-i18n="remove">Remove</button>
-									</div>
-								</div>
-							</div>
-							<div>
+                                                                        </div>
+                                                                        <div class="setting-item-control">
+                                                                                <button type="button" id="delete-unused-properties-btn" data-i18n="remove">Remove</button>
+                                                                        </div>
+                                                                </div>
+
+                                                               <div class="setting-item mod-horizontal">
+                                                                       <div class="setting-item-info">
+                                                                               <label for="append-all-variables-toggle">Append all variables</label>
+                                                                               <div class="setting-item-description">Automatically append all extracted variables as properties.</div>
+                                                                       </div>
+                                                                       <div class="setting-item-control">
+                                                                               <div class="checkbox-container">
+                                                                                       <input type="checkbox" id="append-all-variables-toggle" />
+                                                                               </div>
+                                                                       </div>
+                                                               </div>
+                                                               <div class="setting-item">
+                                                                       <div class="setting-item-info">
+                                                                               <label for="variable-include-input">Include variables</label>
+                                                                               <div class="setting-item-description">Only append variables listed here. Press enter to add.</div>
+                                                                       </div>
+                                                                       <div class="setting-item-control">
+                                                                               <input type="text" id="variable-include-input" placeholder="Press enter to add" autocomplete="off" spellcheck="false" />
+                                                                               <ul id="variable-include-list"></ul>
+                                                                       </div>
+                                                               </div>
+                                                               <div class="setting-item">
+                                                                       <div class="setting-item-info">
+                                                                               <label for="variable-exclude-input">Exclude variables</label>
+                                                                               <div class="setting-item-description">Variables in this list will never be appended. Press enter to add.</div>
+                                                                       </div>
+                                                                       <div class="setting-item-control">
+                                                                               <input type="text" id="variable-exclude-input" placeholder="Press enter to add" autocomplete="off" spellcheck="false" />
+                                                                               <ul id="variable-exclude-list"></ul>
+                                                                       </div>
+                                                               </div>
+                                                               <div class="setting-item mod-horizontal">
+                                                                       <div class="setting-item-info">
+                                                                               <label for="variable-match-regex-input">Variable match regex</label>
+                                                                               <div class="setting-item-description">Append only variables that match this regular expression.</div>
+                                                                       </div>
+                                                                       <div class="setting-item-control">
+                                                                               <input type="text" id="variable-match-regex-input" spellcheck="false" />
+                                                                       </div>
+                                                               </div>
+                                                        </div>
+                                                        <div>
 								<h3 data-i18n="allProperties">All properties</h3>
 								<div class="add-btn" style="display: none;">
 									<a id="add-property-type-btn">+ Add property</a>
@@ -526,19 +567,59 @@
 									<div class="setting-item-description" data-i18n="templateTriggersDescription">Define rules to automatically select this template if it matches a URL pattern or contains schema.org data. One rule per line.</div>
 									<textarea id="url-patterns" placeholder="https://example.com/" rows="2" spellcheck="false"></textarea>
 								</div>
-								<div id="properties-container">
-									<label data-i18n="templateProperties">Properties</label>
-									<div class="setting-item-description" data-i18n="templatePropertiesDescription">Properties to add to the top of the clipped note. Use variables to pre-populate data from the page.</div>
-									<div id="template-properties" class="properties-list"></div>
-									<div class="add-btn metadata-add-btn">
-										<a id="add-property-btn" data-i18n="addProperty">+ Add property</a>
-									</div>
-								</div>
-								<div class="setting-item">
-									<label for="note-content-format" data-i18n="noteContent">Note content</label>
-									<div class="setting-item-description" data-i18n="noteContentDescription">Customize the content of the note. Use variables to pre-populate data from the page.</div>
-									<textarea id="note-content-format" rows="6" placeholder="{{content}}"></textarea>
-								</div>
+                                                                <div id="properties-container">
+                                                                        <label data-i18n="templateProperties">Properties</label>
+                                                                        <div class="setting-item-description" data-i18n="templatePropertiesDescription">Properties to add to the top of the clipped note. Use variables to pre-populate data from the page.</div>
+                                                                        <div id="template-properties" class="properties-list"></div>
+                                                                        <div class="add-btn metadata-add-btn">
+                                                                                <a id="add-property-btn" data-i18n="addProperty">+ Add property</a>
+                                                                        </div>
+                                                                </div>
+                                                               <div class="setting-item mod-horizontal">
+                                                                       <div class="setting-item-info">
+                                                                               <label for="template-append-all-variables-toggle">Append all variables</label>
+                                                                               <div class="setting-item-description">Automatically append all extracted variables as properties for this template.</div>
+                                                                       </div>
+                                                                       <div class="setting-item-control">
+                                                                               <div class="checkbox-container">
+                                                                                       <input type="checkbox" id="template-append-all-variables-toggle" />
+                                                                               </div>
+                                                                       </div>
+                                                               </div>
+                                                               <div class="setting-item">
+                                                                       <div class="setting-item-info">
+                                                                               <label for="template-variable-include-input">Include variables</label>
+                                                                               <div class="setting-item-description">Variables listed here will always be appended. Press enter to add.</div>
+                                                                       </div>
+                                                                       <div class="setting-item-control">
+                                                                               <input type="text" id="template-variable-include-input" placeholder="Press enter to add" autocomplete="off" spellcheck="false" />
+                                                                               <ul id="template-variable-include-list"></ul>
+                                                                       </div>
+                                                               </div>
+                                                               <div class="setting-item">
+                                                                       <div class="setting-item-info">
+                                                                               <label for="template-variable-exclude-input">Exclude variables</label>
+                                                                               <div class="setting-item-description">Variables listed here will not be appended. Press enter to add.</div>
+                                                                       </div>
+                                                                       <div class="setting-item-control">
+                                                                               <input type="text" id="template-variable-exclude-input" placeholder="Press enter to add" autocomplete="off" spellcheck="false" />
+                                                                               <ul id="template-variable-exclude-list"></ul>
+                                                                       </div>
+                                                               </div>
+                                                               <div class="setting-item mod-horizontal">
+                                                                       <div class="setting-item-info">
+                                                                               <label for="template-variable-match-regex-input">Variable match regex</label>
+                                                                               <div class="setting-item-description">Only append variables matching this regular expression.</div>
+                                                                       </div>
+                                                                       <div class="setting-item-control">
+                                                                               <input type="text" id="template-variable-match-regex-input" spellcheck="false" />
+                                                                       </div>
+                                                               </div>
+                                                                <div class="setting-item">
+                                                                        <label for="note-content-format" data-i18n="noteContent">Note content</label>
+                                                                        <div class="setting-item-description" data-i18n="noteContentDescription">Customize the content of the note. Use variables to pre-populate data from the page.</div>
+                                                                        <textarea id="note-content-format" rows="6" placeholder="{{content}}"></textarea>
+                                                                </div>
 								<div class="setting-item" id="prompt-context-container">
 									<label for="prompt-context" data-i18n="interpreterContext">Interpreter context</label>
 									<div class="setting-item-description" data-i18n="interpreterContextDescription">The context used to interpret prompt variables. Overrides the default context defined in Interpreter settings. Variables can be used here.</div>

@@ -194,9 +194,10 @@ export function initializeGeneralSettings(): void {
 		initializeResetDefaultTemplateButton();
 		initializeExportImportAllSettingsButtons();
 		initializeHighlighterSettings();
-		initializeExportHighlightsButton();
-		initializeSaveBehaviorDropdown();
-		await initializeUsageChart();
+                initializeExportHighlightsButton();
+                initializeSaveBehaviorDropdown();
+                initializeVariableSettings();
+                await initializeUsageChart();
 
 		// Initialize feedback modal close button
 		const feedbackModal = document.getElementById('feedback-modal');
@@ -339,6 +340,37 @@ function initializeSaveBehaviorDropdown(): void {
         const newValue = dropdown.value as 'addToObsidian' | 'copyToClipboard' | 'saveFile';
         saveSettings({ saveBehavior: newValue });
     });
+}
+
+import { setupVariableList } from '../utils/variable-list-utils';
+
+function initializeVariableSettings(): void {
+        initializeSettingToggle('append-all-variables-toggle', generalSettings.appendAllVariables ?? false, (checked) => {
+                saveSettings({ appendAllVariables: checked });
+        });
+
+        setupVariableList({
+                listType: 'include',
+                inputId: 'variable-include-input',
+                listId: 'variable-include-list',
+                generalSettings,
+                saveSettings,
+        });
+        setupVariableList({
+                listType: 'exclude',
+                inputId: 'variable-exclude-input',
+                listId: 'variable-exclude-list',
+                generalSettings,
+                saveSettings,
+        });
+        const regexInput = document.getElementById('variable-match-regex-input') as HTMLInputElement;
+        if (regexInput) {
+                regexInput.value = generalSettings.variableMatchRegex || '';
+                regexInput.addEventListener('input', () => {
+                        generalSettings.variableMatchRegex = regexInput.value;
+                        saveSettings();
+                });
+        }
 }
 
 export function resetDefaultTemplate(): void {
