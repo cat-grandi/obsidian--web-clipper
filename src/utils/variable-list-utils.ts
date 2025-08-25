@@ -20,10 +20,12 @@ export function setupVariableList(options: SetupVariableListOptions): void {
 
     const getArray = (): string[] => {
         if (generalSettings) {
-            return generalSettings[listKey] || (generalSettings[listKey] = []);
+            if (!generalSettings[listKey]) generalSettings[listKey] = [];
+            return generalSettings[listKey];
         }
         if (editingTemplate) {
-            return editingTemplate[listKey] || (editingTemplate[listKey] = []);
+            if (!editingTemplate[listKey]) editingTemplate[listKey] = [];
+            return editingTemplate[listKey];
         }
         return [];
     };
