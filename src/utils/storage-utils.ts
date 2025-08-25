@@ -12,15 +12,15 @@ export let generalSettings: Settings = {
 	silentOpen: false,
 	openBehavior: 'popup',
 	highlighterEnabled: true,
-        alwaysShowHighlights: false,
-        highlightBehavior: 'highlight-inline',
-        appendAllVariables: false,
-        variableIncludeList: [],
-        variableExcludeList: ['fullHtml', 'contentHtml', 'content'],
-        variableMatchRegex: '',
-        showMoreActionsButton: false,
-        interpreterModel: '',
-        models: [],
+	alwaysShowHighlights: false,
+	highlightBehavior: 'highlight-inline',
+	appendAllVariables: false,
+	variableIncludeList: [],
+	variableExcludeList: ['fullHtml', 'contentHtml', 'content'],
+	variableMatchRegex: '',
+	showMoreActionsButton: false,
+	interpreterModel: '',
+	models: [],
 	providers: [],
 	interpreterEnabled: false,
 	interpreterAutoRun: false,
@@ -49,22 +49,22 @@ export function setLocalStorage(key: string, value: any): Promise<void> {
 }
 
 export function getLocalStorage(key: string): Promise<any> {
-	return browser.storage.local.get(key).then((result: {[key: string]: any}) => result[key]);
+	return browser.storage.local.get(key).then((result: { [key: string]: any }) => result[key]);
 }
 
 interface StorageData {
-        general_settings?: {
-                showMoreActionsButton?: boolean;
-                betaFeatures?: boolean;
-                legacyMode?: boolean;
-                silentOpen?: boolean;
-                openBehavior?: boolean | 'popup' | 'embedded';
-                saveBehavior?: 'addToObsidian' | 'copyToClipboard' | 'saveFile';
-                appendAllVariables?: boolean;
-                variableIncludeList?: string[];
-                variableExcludeList?: string[];
-                variableMatchRegex?: string;
-        };
+	general_settings?: {
+		showMoreActionsButton?: boolean;
+		betaFeatures?: boolean;
+		legacyMode?: boolean;
+		silentOpen?: boolean;
+		openBehavior?: boolean | 'popup' | 'embedded';
+		saveBehavior?: 'addToObsidian' | 'copyToClipboard' | 'saveFile';
+		appendAllVariables?: boolean;
+		variableIncludeList?: string[];
+		variableExcludeList?: string[];
+		variableMatchRegex?: string;
+	};
 	vaults?: string[];
 	highlighter_settings?: {
 		highlighterEnabled?: boolean;
@@ -102,7 +102,7 @@ const CURRENT_MIGRATION_VERSION = 1;
 
 export async function loadSettings(): Promise<Settings> {
 	const data = await browser.storage.sync.get(null) as StorageData;
-	
+
 	// Load default settings first
 	const defaultSettings: Settings = {
 		vaults: [],
@@ -111,16 +111,16 @@ export async function loadSettings(): Promise<Settings> {
 		legacyMode: false,
 		silentOpen: false,
 		openBehavior: 'popup',
-                highlighterEnabled: true,
-                alwaysShowHighlights: true,
-                highlightBehavior: 'highlight-inline',
-                appendAllVariables: false,
-                variableIncludeList: [],
-                variableExcludeList: ['fullHtml', 'contentHtml', 'content'],
-                variableMatchRegex: '',
-                interpreterModel: '',
-                models: [],
-                providers: [],
+		highlighterEnabled: true,
+		alwaysShowHighlights: true,
+		highlightBehavior: 'highlight-inline',
+		appendAllVariables: false,
+		variableIncludeList: [],
+		variableExcludeList: ['fullHtml', 'contentHtml', 'content'],
+		variableMatchRegex: '',
+		interpreterModel: '',
+		models: [],
+		providers: [],
 		interpreterEnabled: false,
 		interpreterAutoRun: false,
 		defaultPromptContext: '',
@@ -156,19 +156,19 @@ export async function loadSettings(): Promise<Settings> {
 		betaFeatures: data.general_settings?.betaFeatures ?? defaultSettings.betaFeatures,
 		legacyMode: data.general_settings?.legacyMode ?? defaultSettings.legacyMode,
 		silentOpen: data.general_settings?.silentOpen ?? defaultSettings.silentOpen,
-		openBehavior: typeof data.general_settings?.openBehavior === 'boolean' 
-			? (data.general_settings.openBehavior ? 'embedded' : 'popup') 
+		openBehavior: typeof data.general_settings?.openBehavior === 'boolean'
+			? (data.general_settings.openBehavior ? 'embedded' : 'popup')
 			: (data.general_settings?.openBehavior ?? defaultSettings.openBehavior),
 		highlighterEnabled: data.highlighter_settings?.highlighterEnabled ?? defaultSettings.highlighterEnabled,
-                alwaysShowHighlights: data.highlighter_settings?.alwaysShowHighlights ?? defaultSettings.alwaysShowHighlights,
-                highlightBehavior: data.highlighter_settings?.highlightBehavior ?? defaultSettings.highlightBehavior,
-                appendAllVariables: data.general_settings?.appendAllVariables ?? defaultSettings.appendAllVariables,
-                variableIncludeList: data.general_settings?.variableIncludeList || defaultSettings.variableIncludeList,
-                variableExcludeList: data.general_settings?.variableExcludeList || defaultSettings.variableExcludeList,
-                variableMatchRegex: data.general_settings?.variableMatchRegex || defaultSettings.variableMatchRegex,
-                interpreterModel: data.interpreter_settings?.interpreterModel || defaultSettings.interpreterModel,
-                models: data.interpreter_settings?.models || defaultSettings.models,
-                providers: data.interpreter_settings?.providers || defaultSettings.providers,
+		alwaysShowHighlights: data.highlighter_settings?.alwaysShowHighlights ?? defaultSettings.alwaysShowHighlights,
+		highlightBehavior: data.highlighter_settings?.highlightBehavior ?? defaultSettings.highlightBehavior,
+		appendAllVariables: data.general_settings?.appendAllVariables ?? defaultSettings.appendAllVariables,
+		variableIncludeList: data.general_settings?.variableIncludeList || defaultSettings.variableIncludeList,
+		variableExcludeList: data.general_settings?.variableExcludeList || defaultSettings.variableExcludeList,
+		variableMatchRegex: data.general_settings?.variableMatchRegex || defaultSettings.variableMatchRegex,
+		interpreterModel: data.interpreter_settings?.interpreterModel || defaultSettings.interpreterModel,
+		models: data.interpreter_settings?.models || defaultSettings.models,
+		providers: data.interpreter_settings?.providers || defaultSettings.providers,
 		interpreterEnabled: data.interpreter_settings?.interpreterEnabled ?? defaultSettings.interpreterEnabled,
 		interpreterAutoRun: data.interpreter_settings?.interpreterAutoRun ?? defaultSettings.interpreterAutoRun,
 		defaultPromptContext: data.interpreter_settings?.defaultPromptContext || defaultSettings.defaultPromptContext,
@@ -198,18 +198,18 @@ export async function saveSettings(settings?: Partial<Settings>): Promise<void> 
 
 	await browser.storage.sync.set({
 		vaults: generalSettings.vaults,
-                general_settings: {
-                        showMoreActionsButton: generalSettings.showMoreActionsButton,
-                        betaFeatures: generalSettings.betaFeatures,
-                        legacyMode: generalSettings.legacyMode,
-                        silentOpen: generalSettings.silentOpen,
-                        openBehavior: generalSettings.openBehavior,
-                        saveBehavior: generalSettings.saveBehavior,
-                        appendAllVariables: generalSettings.appendAllVariables,
-                        variableIncludeList: generalSettings.variableIncludeList,
-                        variableExcludeList: generalSettings.variableExcludeList,
-                        variableMatchRegex: generalSettings.variableMatchRegex,
-                },
+		general_settings: {
+			showMoreActionsButton: generalSettings.showMoreActionsButton,
+			betaFeatures: generalSettings.betaFeatures,
+			legacyMode: generalSettings.legacyMode,
+			silentOpen: generalSettings.silentOpen,
+			openBehavior: generalSettings.openBehavior,
+			saveBehavior: generalSettings.saveBehavior,
+			appendAllVariables: generalSettings.appendAllVariables,
+			variableIncludeList: generalSettings.variableIncludeList,
+			variableExcludeList: generalSettings.variableExcludeList,
+			variableMatchRegex: generalSettings.variableMatchRegex,
+		},
 		highlighter_settings: {
 			highlighterEnabled: generalSettings.highlighterEnabled,
 			alwaysShowHighlights: generalSettings.alwaysShowHighlights,
@@ -258,8 +258,8 @@ export async function incrementStat(
 }
 
 export async function addHistoryEntry(
-	action: keyof Settings['stats'], 
-	url: string, 
+	action: keyof Settings['stats'],
+	url: string,
 	title?: string,
 	vault?: string,
 	path?: string

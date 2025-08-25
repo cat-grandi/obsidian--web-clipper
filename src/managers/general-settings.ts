@@ -170,7 +170,7 @@ export function initializeGeneralSettings(): void {
 							}
 						});
 						await handleRating(rating);
-						
+
 						// Hide the rating section after rating
 						if (rateExtensionSection) {
 							rateExtensionSection.style.display = 'none';
@@ -194,10 +194,10 @@ export function initializeGeneralSettings(): void {
 		initializeResetDefaultTemplateButton();
 		initializeExportImportAllSettingsButtons();
 		initializeHighlighterSettings();
-                initializeExportHighlightsButton();
-                initializeSaveBehaviorDropdown();
-                initializeVariableSettings();
-                await initializeUsageChart();
+		initializeExportHighlightsButton();
+		initializeSaveBehaviorDropdown();
+		initializeVariableSettings();
+		await initializeUsageChart();
 
 		// Initialize feedback modal close button
 		const feedbackModal = document.getElementById('feedback-modal');
@@ -281,7 +281,7 @@ async function initializeKeyboardShortcuts(): Promise<void> {
 		getCommands().then(commands => {
 			commands.forEach(command => {
 				const shortcutItem = createElementWithClass('div', 'shortcut-item');
-				
+
 				const descriptionSpan = document.createElement('span');
 				descriptionSpan.textContent = command.description;
 				shortcutItem.appendChild(descriptionSpan);
@@ -332,52 +332,52 @@ function initializeResetDefaultTemplateButton(): void {
 }
 
 function initializeSaveBehaviorDropdown(): void {
-    const dropdown = document.getElementById('save-behavior-dropdown') as HTMLSelectElement;
-    if (!dropdown) return;
+	const dropdown = document.getElementById('save-behavior-dropdown') as HTMLSelectElement;
+	if (!dropdown) return;
 
-    dropdown.value = generalSettings.saveBehavior;
-    dropdown.addEventListener('change', () => {
-        const newValue = dropdown.value as 'addToObsidian' | 'copyToClipboard' | 'saveFile';
-        saveSettings({ saveBehavior: newValue });
-    });
+	dropdown.value = generalSettings.saveBehavior;
+	dropdown.addEventListener('change', () => {
+		const newValue = dropdown.value as 'addToObsidian' | 'copyToClipboard' | 'saveFile';
+		saveSettings({ saveBehavior: newValue });
+	});
 }
 
 import { setupVariableList } from '../utils/variable-list-utils';
 
 function initializeVariableSettings(): void {
-        initializeSettingToggle('append-all-variables-toggle', generalSettings.appendAllVariables ?? false, (checked) => {
-                saveSettings({ appendAllVariables: checked });
-        });
+	initializeSettingToggle('append-all-variables-toggle', generalSettings.appendAllVariables ?? false, (checked) => {
+		saveSettings({ appendAllVariables: checked });
+	});
 
-        setupVariableList({
-                listType: 'include',
-                inputId: 'variable-include-input',
-                listId: 'variable-include-list',
-                generalSettings,
-                saveSettings,
-        });
-        setupVariableList({
-                listType: 'exclude',
-                inputId: 'variable-exclude-input',
-                listId: 'variable-exclude-list',
-                generalSettings,
-                saveSettings,
-        });
-        const regexInput = document.getElementById('variable-match-regex-input') as HTMLInputElement;
-        if (regexInput) {
-                regexInput.value = generalSettings.variableMatchRegex || '';
-                regexInput.addEventListener('input', () => {
-                        generalSettings.variableMatchRegex = regexInput.value;
-                        saveSettings();
-                });
-        }
+	setupVariableList({
+		listType: 'include',
+		inputId: 'variable-include-input',
+		listId: 'variable-include-list',
+		generalSettings,
+		saveSettings,
+	});
+	setupVariableList({
+		listType: 'exclude',
+		inputId: 'variable-exclude-input',
+		listId: 'variable-exclude-list',
+		generalSettings,
+		saveSettings,
+	});
+	const regexInput = document.getElementById('variable-match-regex-input') as HTMLInputElement;
+	if (regexInput) {
+		regexInput.value = generalSettings.variableMatchRegex || '';
+		regexInput.addEventListener('input', () => {
+			generalSettings.variableMatchRegex = regexInput.value;
+			saveSettings();
+		});
+	}
 }
 
 export function resetDefaultTemplate(): void {
 	const defaultTemplate = createDefaultTemplate();
 	const currentTemplates = getTemplates();
 	const defaultIndex = currentTemplates.findIndex((t: Template) => t.name === getMessage('defaultTemplateName'));
-	
+
 	if (defaultIndex !== -1) {
 		currentTemplates[defaultIndex] = defaultTemplate;
 	} else {
@@ -443,7 +443,7 @@ async function initializeUsageChart(): Promise<void> {
 			timeRange: periodSelect.value as '30d' | 'all',
 			aggregation: aggregationSelect.value as 'day' | 'week' | 'month'
 		};
-		
+
 		const chartData = aggregateUsageData(history, options);
 		await createUsageChart(chartContainer, chartData);
 	};
@@ -459,17 +459,17 @@ async function initializeUsageChart(): Promise<void> {
 async function handleRating(rating: number) {
 	// Get existing ratings from storage
 	const existingRatings = await getLocalStorage('ratings') || [];
-	
+
 	// Add new rating
 	const newRating = {
 		rating,
 		date: new Date().toISOString()
 	};
-	
+
 	// Update both storage and generalSettings
 	const updatedRatings = [...existingRatings, newRating];
 	generalSettings.ratings = updatedRatings;
-	
+
 	// Save to storage
 	await setLocalStorage('ratings', updatedRatings);
 	await saveSettings();

@@ -22,18 +22,18 @@ export function updateTemplateList(loadedTemplates?: Template[]): void {
 		console.error('Template list element not found');
 		return;
 	}
-	
+
 	const templatesToUse = loadedTemplates || templates;
-	
+
 	// Filter out null or undefined templates
-	const validTemplates = templatesToUse.filter((template): template is Template => 
+	const validTemplates = templatesToUse.filter((template): template is Template =>
 		template != null && typeof template === 'object' && 'id' in template && 'name' in template
 	);
 
 	templateList.innerHTML = '';
 	validTemplates.forEach((template, index) => {
 		const li = document.createElement('li');
-		
+
 		const dragHandle = createElementWithClass('div', 'drag-handle');
 		dragHandle.appendChild(createElementWithHTML('i', '', { 'data-lucide': 'grip-vertical' }));
 		li.appendChild(dragHandle);
@@ -95,7 +95,7 @@ export function updateTemplateList(loadedTemplates?: Template[]): void {
 			e.stopPropagation();
 			deleteTemplateFromList(template.id);
 		});
-		
+
 		if (index === editingTemplateIndex) {
 			li.classList.add('active');
 		}
@@ -180,7 +180,7 @@ export function showTemplateEditor(template: Template | null): void {
 
 	const behaviorSelect = document.getElementById('template-behavior') as HTMLSelectElement;
 	if (behaviorSelect) behaviorSelect.value = editingTemplate.behavior || 'create';
-	
+
 	const noteNameFormat = document.getElementById('note-name-format') as HTMLInputElement;
 	if (noteNameFormat) {
 		noteNameFormat.value = editingTemplate.noteNameFormat || '{{title}}';
@@ -198,88 +198,88 @@ export function showTemplateEditor(template: Template | null): void {
 		behaviorSelect.addEventListener('change', updateBehaviorFields);
 	}
 
-        refreshPropertyNameSuggestions();
+	refreshPropertyNameSuggestions();
 
-        if (editingTemplate && Array.isArray(editingTemplate.properties)) {
-                editingTemplate.properties.forEach(property => addPropertyToEditor(property.name, property.value, property.id));
-        }
+	if (editingTemplate && Array.isArray(editingTemplate.properties)) {
+		editingTemplate.properties.forEach(property => addPropertyToEditor(property.name, property.value, property.id));
+	}
 
-        const appendAllVariablesToggle = document.getElementById('template-append-all-variables-toggle') as HTMLInputElement;
-        if (appendAllVariablesToggle) {
-                appendAllVariablesToggle.checked = editingTemplate.appendAllVariables ?? generalSettings.appendAllVariables ?? false;
-                appendAllVariablesToggle.addEventListener('change', () => {
-                        editingTemplate.appendAllVariables = appendAllVariablesToggle.checked;
-                        hasUnsavedChanges = true;
-                });
-        }
+	const appendAllVariablesToggle = document.getElementById('template-append-all-variables-toggle') as HTMLInputElement;
+	if (appendAllVariablesToggle) {
+		appendAllVariablesToggle.checked = editingTemplate.appendAllVariables ?? generalSettings.appendAllVariables ?? false;
+		appendAllVariablesToggle.addEventListener('change', () => {
+			editingTemplate.appendAllVariables = appendAllVariablesToggle.checked;
+			hasUnsavedChanges = true;
+		});
+	}
 
-        function setupVariableList(listType: 'include' | 'exclude', inputId: string, listId: string): void {
-                const input = document.getElementById(inputId) as HTMLInputElement;
-                const list = document.getElementById(listId) as HTMLUListElement;
-                const listKey: 'variableIncludeList' | 'variableExcludeList' =
-                        listType === 'include' ? 'variableIncludeList' : 'variableExcludeList';
+	function setupVariableList(listType: 'include' | 'exclude', inputId: string, listId: string): void {
+		const input = document.getElementById(inputId) as HTMLInputElement;
+		const list = document.getElementById(listId) as HTMLUListElement;
+		const listKey: 'variableIncludeList' | 'variableExcludeList' =
+			listType === 'include' ? 'variableIncludeList' : 'variableExcludeList';
 
-                function updateList(): void {
-                        if (!list) return;
-                        list.innerHTML = '';
-                        (editingTemplate[listKey] || []).forEach((variable) => {
-                                const li = document.createElement('li');
-                                const span = document.createElement('span');
-                                span.textContent = variable;
-                                li.appendChild(span);
+		function updateList(): void {
+			if (!list) return;
+			list.innerHTML = '';
+			(editingTemplate[listKey] || []).forEach((variable) => {
+				const li = document.createElement('li');
+				const span = document.createElement('span');
+				span.textContent = variable;
+				li.appendChild(span);
 
-                                const removeBtn = createElementWithClass('button', 'remove-variable-btn clickable-icon');
-                                removeBtn.setAttribute('type', 'button');
-                                removeBtn.appendChild(createElementWithHTML('i', '', { 'data-lucide': 'trash-2' }));
-                                removeBtn.addEventListener('click', (e) => {
-                                        e.stopPropagation();
-                                        const arr = editingTemplate[listKey];
-                                        const idx = arr ? arr.indexOf(variable) : -1;
-                                        if (idx !== -1 && arr) {
-                                                arr.splice(idx, 1);
-                                                updateList();
-                                                hasUnsavedChanges = true;
-                                        }
-                                });
-                                li.appendChild(removeBtn);
-                                list.appendChild(li);
-                        });
-                        initializeIcons(list);
-                }
+				const removeBtn = createElementWithClass('button', 'remove-variable-btn clickable-icon');
+				removeBtn.setAttribute('type', 'button');
+				removeBtn.appendChild(createElementWithHTML('i', '', { 'data-lucide': 'trash-2' }));
+				removeBtn.addEventListener('click', (e) => {
+					e.stopPropagation();
+					const arr = editingTemplate[listKey];
+					const idx = arr ? arr.indexOf(variable) : -1;
+					if (idx !== -1 && arr) {
+						arr.splice(idx, 1);
+						updateList();
+						hasUnsavedChanges = true;
+					}
+				});
+				li.appendChild(removeBtn);
+				list.appendChild(li);
+			});
+			initializeIcons(list);
+		}
 
-                if (input) {
-                        input.addEventListener('keypress', (e) => {
-                                if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        const value = input.value.trim();
-                                        if (value) {
-                                                if (!editingTemplate[listKey]) editingTemplate[listKey] = [];
-                                                editingTemplate[listKey]!.push(value);
-                                                input.value = '';
-                                                updateList();
-                                                hasUnsavedChanges = true;
-                                        }
-                                }
-                        });
-                }
+		if (input) {
+			input.addEventListener('keypress', (e) => {
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					const value = input.value.trim();
+					if (value) {
+						if (!editingTemplate[listKey]) editingTemplate[listKey] = [];
+						editingTemplate[listKey]!.push(value);
+						input.value = '';
+						updateList();
+						hasUnsavedChanges = true;
+					}
+				}
+			});
+		}
 
-                updateList();
-        }
+		updateList();
+	}
 
-        setupVariableList('include', 'template-variable-include-input', 'template-variable-include-list');
-        setupVariableList('exclude', 'template-variable-exclude-input', 'template-variable-exclude-list');
-        // Use shared setupVariableList utility function
-        const regexInput = document.getElementById('template-variable-match-regex-input') as HTMLInputElement;
-        if (regexInput) {
-                regexInput.value = editingTemplate.variableMatchRegex || '';
-                regexInput.addEventListener('input', () => {
-                        editingTemplate.variableMatchRegex = regexInput.value;
-                        hasUnsavedChanges = true;
-                });
-        }
+	setupVariableList('include', 'template-variable-include-input', 'template-variable-include-list');
+	setupVariableList('exclude', 'template-variable-exclude-input', 'template-variable-exclude-list');
+	// Use shared setupVariableList utility function
+	const regexInput = document.getElementById('template-variable-match-regex-input') as HTMLInputElement;
+	if (regexInput) {
+		regexInput.value = editingTemplate.variableMatchRegex || '';
+		regexInput.addEventListener('input', () => {
+			editingTemplate.variableMatchRegex = regexInput.value;
+			hasUnsavedChanges = true;
+		});
+	}
 
-        const triggersTextarea = document.getElementById('url-patterns') as HTMLTextAreaElement;
-        if (triggersTextarea) triggersTextarea.value = editingTemplate && editingTemplate.triggers ? editingTemplate.triggers.join('\n') : '';
+	const triggersTextarea = document.getElementById('url-patterns') as HTMLTextAreaElement;
+	if (triggersTextarea) triggersTextarea.value = editingTemplate && editingTemplate.triggers ? editingTemplate.triggers.join('\n') : '';
 
 	showSettingsSection('templates', editingTemplate.id);
 
@@ -461,9 +461,9 @@ export function addPropertyToEditor(name: string = '', value: string = '', id: s
 	propertyDiv.addEventListener('mouseup', resetDraggable);
 
 	if (select) {
-		select.addEventListener('change', function() {
+		select.addEventListener('change', function () {
 			if (propertySelectedDiv) updateSelectedOption(this.value, propertySelectedDiv);
-			
+
 			// Get the current name of the property
 			const nameInput = propertyDiv.querySelector('.property-name') as HTMLInputElement;
 			const currentName = nameInput.value;
@@ -494,12 +494,12 @@ export function addPropertyToEditor(name: string = '', value: string = '', id: s
 
 	initializeIcons(propertyDiv);
 
-	nameInput.addEventListener('input', function(this: HTMLInputElement) {
+	nameInput.addEventListener('input', function (this: HTMLInputElement) {
 		const selectedType = generalSettings.propertyTypes.find(pt => pt.name === this.value);
 		if (selectedType) {
 			select.value = selectedType.type;
 			updateSelectedOption(selectedType.type, propertySelectedDiv);
-			
+
 			// Only update the property type if the name is not empty
 			if (this.value.trim() !== '') {
 				updatePropertyType(this.value, selectedType.type).then(() => {
@@ -508,7 +508,7 @@ export function addPropertyToEditor(name: string = '', value: string = '', id: s
 					console.error(`Failed to update property type for ${this.value}:`, error);
 				});
 			}
-			
+
 			// Fill in the default value if it exists and the value input is empty
 			if (selectedType.defaultValue && !valueInput.value) {
 				valueInput.value = selectedType.defaultValue;
@@ -520,7 +520,7 @@ export function addPropertyToEditor(name: string = '', value: string = '', id: s
 	});
 
 	// Add a change event listener to handle selection from autocomplete
-	nameInput.addEventListener('change', function(this: HTMLInputElement) {
+	nameInput.addEventListener('change', function (this: HTMLInputElement) {
 		const selectedType = generalSettings.propertyTypes.find(pt => pt.name === this.value);
 		if (selectedType) {
 			// Fill in the default value if it exists, regardless of current value
@@ -535,14 +535,14 @@ export function addPropertyToEditor(name: string = '', value: string = '', id: s
 
 function updateSelectedOption(value: string, propertySelected: HTMLElement): void {
 	const iconName = getPropertyTypeIcon(value);
-	
+
 	// Clear existing content
 	propertySelected.innerHTML = '';
-	
+
 	// Create and append the new icon element
 	const iconElement = createElementWithHTML('i', '', { 'data-lucide': iconName });
 	propertySelected.appendChild(iconElement);
-	
+
 	propertySelected.setAttribute('data-value', value);
 	initializeIcons(propertySelected);
 }
