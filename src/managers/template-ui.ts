@@ -10,6 +10,7 @@ import { updatePromptContextVisibility } from './interpreter-settings';
 import { showSettingsSection } from './settings-section-ui';
 import { updatePropertyType } from './property-types-manager';
 import { getMessage } from '../utils/i18n';
+import { setupVariableList } from '../utils/variable-list-utils';
 let hasUnsavedChanges = false;
 
 export function resetUnsavedChanges(): void {
@@ -213,62 +214,20 @@ export function showTemplateEditor(template: Template | null): void {
 		});
 	}
 
-	function setupVariableList(listType: 'include' | 'exclude', inputId: string, listId: string): void {
-		const input = document.getElementById(inputId) as HTMLInputElement;
-		const list = document.getElementById(listId) as HTMLUListElement;
-		const listKey: 'variableIncludeList' | 'variableExcludeList' =
-			listType === 'include' ? 'variableIncludeList' : 'variableExcludeList';
-
-		function updateList(): void {
-			if (!list) return;
-			list.innerHTML = '';
-			(editingTemplate[listKey] || []).forEach((variable) => {
-				const li = document.createElement('li');
-				const span = document.createElement('span');
-				span.textContent = variable;
-				li.appendChild(span);
-
-				const removeBtn = createElementWithClass('button', 'remove-variable-btn clickable-icon');
-				removeBtn.setAttribute('type', 'button');
-				removeBtn.appendChild(createElementWithHTML('i', '', { 'data-lucide': 'trash-2' }));
-				removeBtn.addEventListener('click', (e) => {
-					e.stopPropagation();
-					const arr = editingTemplate[listKey];
-					const idx = arr ? arr.indexOf(variable) : -1;
-					if (idx !== -1 && arr) {
-						arr.splice(idx, 1);
-						updateList();
-						hasUnsavedChanges = true;
-					}
-				});
-				li.appendChild(removeBtn);
-				list.appendChild(li);
-			});
-			initializeIcons(list);
-		}
-
-		if (input) {
-			input.addEventListener('keypress', (e) => {
-				if (e.key === 'Enter') {
-					e.preventDefault();
-					const value = input.value.trim();
-					if (value) {
-						if (!editingTemplate[listKey]) editingTemplate[listKey] = [];
-						editingTemplate[listKey]!.push(value);
-						input.value = '';
-						updateList();
-						hasUnsavedChanges = true;
-					}
-				}
-			});
-		}
-
-		updateList();
-	}
-
-	setupVariableList('include', 'template-variable-include-input', 'template-variable-include-list');
-	setupVariableList('exclude', 'template-variable-exclude-input', 'template-variable-exclude-list');
-	// Use shared setupVariableList utility function
+        setupVariableList({
+                listType: 'include',
+                inputId: 'template-variable-include-input',
+                listId: 'template-variable-include-list',
+                editingTemplate,
+                onChange: () => { hasUnsavedChanges = true; }
+        });
+        setupVariableList({
+                listType: 'exclude',
+                inputId: 'template-variable-exclude-input',
+                listId: 'template-variable-exclude-list',
+                editingTemplate,
+                onChange: () => { hasUnsavedChanges = true; }
+        });
 	const regexInput = document.getElementById('template-variable-match-regex-input') as HTMLInputElement;
 	if (regexInput) {
 		regexInput.value = editingTemplate.variableMatchRegex || '';

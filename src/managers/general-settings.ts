@@ -18,6 +18,7 @@ import { getClipHistory } from '../utils/storage-utils';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import { showModal, hideModal } from '../utils/modal-utils';
+import { setupVariableList } from '../utils/variable-list-utils';
 
 dayjs.extend(weekOfYear);
 
@@ -341,8 +342,6 @@ function initializeSaveBehaviorDropdown(): void {
 		saveSettings({ saveBehavior: newValue });
 	});
 }
-
-import { setupVariableList } from '../utils/variable-list-utils';
 
 function initializeVariableSettings(): void {
 	initializeSettingToggle('append-all-variables-toggle', generalSettings.appendAllVariables ?? false, (checked) => {
