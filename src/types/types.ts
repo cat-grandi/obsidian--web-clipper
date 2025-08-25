@@ -74,8 +74,6 @@ export interface Settings {
 	highlighterEnabled: boolean;
 	alwaysShowHighlights: boolean;
         highlightBehavior: string;
-        appendAllVariables?: boolean;
-        variableIncludeList?: string[];
         appendAllVariables: boolean;
         variableIncludeList: string[];
         variableExcludeList: string[];
