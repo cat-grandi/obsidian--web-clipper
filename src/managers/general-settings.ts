@@ -342,69 +342,27 @@ function initializeSaveBehaviorDropdown(): void {
     });
 }
 
+import { setupVariableList } from '../utils/variable-list-utils';
+
 function initializeVariableSettings(): void {
         initializeSettingToggle('append-all-variables-toggle', generalSettings.appendAllVariables ?? false, (checked) => {
                 saveSettings({ appendAllVariables: checked });
         });
 
-        function setupVariableList(listType: 'include' | 'exclude', inputId: string, listId: string): void {
-                const input = document.getElementById(inputId) as HTMLInputElement;
-                const list = document.getElementById(listId) as HTMLUListElement;
-                const listKey: 'variableIncludeList' | 'variableExcludeList' =
-                        listType === 'include' ? 'variableIncludeList' : 'variableExcludeList';
-
-                function updateList(): void {
-                        if (!list) return;
-                        list.innerHTML = '';
-                        (generalSettings[listKey] || []).forEach((variable) => {
-                                const li = document.createElement('li');
-                                const span = document.createElement('span');
-                                span.textContent = variable;
-                                li.appendChild(span);
-
-                                const removeBtn = createElementWithClass('button', 'remove-variable-btn clickable-icon');
-                                removeBtn.setAttribute('type', 'button');
-                                removeBtn.appendChild(createElementWithHTML('i', '', { 'data-lucide': 'trash-2' }));
-                                removeBtn.addEventListener('click', (e) => {
-                                        e.stopPropagation();
-                                        const arr = generalSettings[listKey];
-                                        const idx = arr ? arr.indexOf(variable) : -1;
-                                        if (idx !== -1 && arr) {
-                                                arr.splice(idx, 1);
-                                                saveSettings();
-                                                updateList();
-                                        }
-                                });
-                                li.appendChild(removeBtn);
-
-                                list.appendChild(li);
-                        });
-
-                        initializeIcons(list);
-                }
-
-                if (input) {
-                        input.addEventListener('keypress', (e) => {
-                                if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        const value = input.value.trim();
-                                        if (value) {
-                                                if (!generalSettings[listKey]) generalSettings[listKey] = [];
-                                                generalSettings[listKey]!.push(value);
-                                                input.value = '';
-                                                saveSettings();
-                                                updateList();
-                                        }
-                                }
-                        });
-                }
-
-                updateList();
-        }
-
-        setupVariableList('include', 'variable-include-input', 'variable-include-list');
-        setupVariableList('exclude', 'variable-exclude-input', 'variable-exclude-list');
-
+        setupVariableList({
+                listType: 'include',
+                inputId: 'variable-include-input',
+                listId: 'variable-include-list',
+                generalSettings,
+                saveSettings,
+        });
+        setupVariableList({
+                listType: 'exclude',
+                inputId: 'variable-exclude-input',
+                listId: 'variable-exclude-list',
+                generalSettings,
+                saveSettings,
+        });
         const regexInput = document.getElementById('variable-match-regex-input') as HTMLInputElement;
         if (regexInput) {
                 regexInput.value = generalSettings.variableMatchRegex || '';
